@@ -1,0 +1,239 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Clientes</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Equipos</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- /.row -->
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Cliente: {{clientname}}</h3>
+            <button
+              type="button"
+              data-toggle="modal"
+              data-target="#clients-modal"
+              class="card-title btn btn-primary"
+              style="float: right"
+              class="btn btn-primary"
+              (click)="newDevice()"
+            >
+              Agregar Equipo
+            </button>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body table-responsive p-0">
+            <table
+            *ngIf="allDevices.length > 0"
+              datatable [dtOptions]="dtOptions"
+              class="row-border hover table table-hover text-nowrap"
+            >
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <!-- <th>Usuario</th> -->
+                  
+                  <th>Marca</th>
+                  <th>Codigo</th>
+                  <th>Usuario</th>
+                  <th>Cliente</th>
+                  <th>IP</th>
+                  <th>Estado</th>
+                  <th>Ult</th>
+                  <th>Tiempo</th>
+                  <th>Status</th>
+                  <th>Canal</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let devices of allDevices; trackBy: trackByDeviceId"
+                    [style.--bs-table-bg]="statusBg(devices.clientstatus)"
+                    [style.--bs-table-color]="statusFg(devices.clientstatus)"
+                    [style.--bs-table-striped-bg]="statusStripe(devices.clientstatus)"
+                    [style.--bs-table-hover-bg]="statusHover(devices.clientstatus)"
+                 >
+                  <td>{{ devices.deviceid }}</td>
+                  <!-- <td>{{ clients.username }}</td> -->
+
+                  <td>{{ devices.brand }}</td>
+                  <td>{{ devices.barcode }}</td>
+                  <td>{{ devices.username }}</td>
+                  <td>{{ devices.username }}</td>
+                  <td>{{devices.lastip}}</td>
+                  <td>{{ devices.clientstatus }} </td>
+                  <td>{{devices.lastecm}} </td>
+                  <td>{{devices.ltime}}</td>
+                  <td>{{ devices.lastchannel }}</td>
+
+                  <td>
+                    <div class="custom-control custom-switch">
+                      <input
+                        type="checkbox"
+                        [checked]="devices.status == 'enabled'"
+                        class="custom-control-input"
+                        (change)="updateStatus(devices)"
+                        [id]="devices.username"
+                      />
+                      <label
+                        class="custom-control-label"
+                        *ngIf="devices.status == 'enabled'"
+                        [for]="devices.username"
+                        ></label
+                      >
+                      <label
+                        class="custom-control-label"
+                        *ngIf="devices.status == 'disabled'"
+                        [for]="devices.username"
+                        ></label
+                      >
+                    </div>
+                  </td>
+                  <td>
+                    <i class="fas fa-trash" (click)="delete(devices)"></i>
+                    <i
+                      class="fas fa-pen"
+                      style="margin-left: 15px"
+                      (click)="read(devices)"
+                      data-toggle="modal"
+                      data-target="#clients-modal"
+                    ></i>
+                    <i class="fas fa-plus" style="margin-left: 15px" (click)="devicesadd(devices)" data-toggle="modal"
+                      data-target="#clients-modal"></i>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<div class="modal fade" id="clients-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" *ngIf="!editPopup">Agregar Equipo</h4>
+        <h4 class="modal-title" *ngIf="editPopup">Editar Equipo</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="deviceForm">
+          <div class="card-body">
+          <div class="row">
+            <div class="col-md-12">
+          
+              <div class="form-group">
+                <label for="clientid">Cliente</label>
+                <select formControlName="clientid" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('clientid') }"
+                  id="clientid">
+                  <option value="">Seleccione un cliente</option>
+                  <option *ngFor="let c of allClients" [value]="c.clientid">{{ c.name }}</option>
+                </select>
+                <span id="clientid-error" *ngIf="errors.includes('clientid')" class="error invalid-feedback">
+                  {{ formError.clientid }}
+                </span>
+              </div>
+          
+              <div class="form-group">
+                <label for="brand">Marca</label>
+                <select formControlName="brand" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('brand') }"
+                  id="brand">
+                  <option value="">Seleccione una marca</option>
+                  <option *ngFor="let b of allBrands" [value]="b.brand">{{ b.brand }}</option>
+                </select>
+                <span id="brand-error" *ngIf="errors.includes('brand')" class="error invalid-feedback">
+                  {{ formError.brand }}
+                </span>
+              </div>
+          
+              <div class="form-group">
+                <label for="barcode">Código de Barras</label>
+                <input type="text" formControlName="barcode" class="form-control"
+                  [ngClass]="{ 'is-invalid': errors.includes('barcode') }" id="barcode" placeholder="Código de Barras" />
+                <span id="barcode-error" *ngIf="errors.includes('barcode')" class="error invalid-feedback">
+                  {{ formError.barcode }}
+                </span>
+              </div>
+          
+              <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" formControlName="username" class="form-control"
+                  [ngClass]="{ 'is-invalid': errors.includes('username') }" id="username" placeholder="Usuario" />
+                <span id="username-error" *ngIf="errors.includes('username')" class="error invalid-feedback">
+                  {{ formError.username }}
+                </span>
+              </div>
+          
+              <div class="form-group">
+                <label for="password">password</label>
+                <input type="text" formControlName="password" class="form-control"
+                  [ngClass]="{ 'is-invalid': errors.includes('password') }" id="password" placeholder="Contraseña" />
+                <span id="password-error" *ngIf="errors.includes('password')" class="error invalid-feedback">
+                  {{ formError.password }}
+                </span>
+              </div>
+          
+              <div class="form-group">
+                <label for="location">Localidad</label>
+                <input type="text" formControlName="location" class="form-control"
+                  [ngClass]="{ 'is-invalid': errors.includes('location') }" id="location" placeholder="Localidad" />
+                <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">
+                  {{ formError.location }}
+                </span>
+              </div>
+
+          
+            </div>
+          </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="obs">Observaciones</label>
+                  <textarea formControlName="obs" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('obs') }" id="obs" placeholder="Observaciones"></textarea>
+                  <span id="obs-error" *ngIf="errors.includes('obs')" class="error invalid-feedback">{{ formError.obs }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" #closeModal data-dismiss="modal" (click)="clearForm()">Close</button>
+        <button type="button" *ngIf="!editPopup" (click)="create()" class="btn btn-primary">Create</button>
+        <button type="button" *ngIf="editPopup" [disabled]="formSubmissionFlag" (click)="update()" class="btn btn-primary">
+          <div class="spinner-border text-light spinner" *ngIf="formSubmissionFlag"></div>
+          Save changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

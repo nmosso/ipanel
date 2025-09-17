@@ -1,0 +1,31 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Monitoreo</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Monitoreo</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+    <div class="col-12">
+      <button *ngIf="role==='admin'" type="button" (click)="astrasetallchannels()" class="card-title btn btn-primary"
+        style="float: left" class="btn btn-primary">
+        Astra: Set All Channels
+      </button>
+    </div>
+  </div>
+  </div>
+</section>

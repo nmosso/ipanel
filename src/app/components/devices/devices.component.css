@@ -1,0 +1,15 @@
+.is-invalid{
+  border: 1px solid red !important;
+  border-radius: 5px;
+}
+.error-message {
+  color: red;
+}
+
+
+/* component.css (o global) */
+.row-online   { background: #95f1bd; color:#000000; }
+.row-offline  { background: #f8c2c2; color:#000000; }
+.row-disabled { background: #9e9e9e; color:#000000; }
+.row-connected  { background: #eee48e; color:#000000; }
+.row-default  { background: #ffffff; }
