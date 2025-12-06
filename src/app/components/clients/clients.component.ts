@@ -8,6 +8,7 @@ import {  NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationComponent } from '../../../app/core/shared/components/confirmation/confirmation.component';
 import { RolesService } from '../../../app/core/shared/services/roles.service';
 import { ClientsService } from './clients.service';
+import { DevicesService } from '../devices/devices.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ActivatedRoute, TitleStrategy } from '@angular/router';
 
@@ -54,12 +55,14 @@ export class ClientsComponent implements OnInit {
   formSubmissionFlag: boolean = false;
   errorClientexists: boolean = false;
   errorClientNotexists: boolean = false;
+  days: number[] = Array.from({ length: 30 }, (_, i) => i + 1);
 
   constructor(
     private roleService: RolesService,
     private http: HttpClient,
     private route: ActivatedRoute,
     private clientsService: ClientsService,
+    private devicesService: DevicesService,
     private viewContainer: ViewContainerRef,
     private cdr: ChangeDetectorRef
   ) {
@@ -144,6 +147,7 @@ async  getNextMonthDate() {
       location: new FormControl(''),
       status: new FormControl('enabled'),
       maxdevices: new FormControl(1, [Validators.required]),
+      dueday: new FormControl(''),
       obs: new FormControl(''),
       istrial: new FormControl(false, [Validators.required]),
       expiration: new FormControl(await this.getNextMonthDate(), [Validators.required])
@@ -209,9 +213,32 @@ async  getNextMonthDate() {
   }
   updateStatus(item) {
     item.status = item.status === 'enabled' ? 'disabled' : 'enabled';
+
     this.clientForm.patchValue({ 'status': item.status });
     this.clientForm.patchValue(item);
-    this.update();
+    this.clientsService.clientUpdateStatus (item.clientid,item.status).then((data: any) => {
+      this.getClientList();
+      this.cdr.detectChanges();
+      this.formSubmissionFlag = false;
+      this.closeModal.nativeElement.click();
+      Swal.fire({
+        title: '',
+        text: 'Client updated Successfully',
+        icon: 'success',
+        confirmButtonText: 'Close'
+      });
+
+    }).catch((err: any) => {
+      this.closeModal.nativeElement.click();
+      this.formSubmissionFlag = false;
+      Swal.fire({
+        title: '',
+        text: 'Error: ' + err.errmessage,
+        icon: 'error',
+        confirmButtonText: 'Close'
+      });
+
+    });
   }
 
 
@@ -256,7 +283,7 @@ async  getNextMonthDate() {
     formData.append('obs', this.clientForm.value.obs);
     formData.append('istrial', this.clientForm.value.istrial);
     formData.append('expiration',expiration );
-
+    formData.append('dueday', this.clientForm.value.dueday);
      this.clientsService.clientAdd(this.formDataToJson(formData)).then((data:any)=>{ 
       this.getClientList();
       this.cdr.detectChanges();
@@ -273,7 +300,7 @@ async  getNextMonthDate() {
     }).catch((err:any)=>{
       Swal.fire({
         title: '',
-        text: 'Error al crear el nuevo cliente',
+        text: 'Error: ' + err.errmessage,
         icon: 'error',
         confirmButtonText: 'Close'
       });
@@ -335,7 +362,7 @@ async  getNextMonthDate() {
       this.formSubmissionFlag = false;
       Swal.fire({
         title: '',
-        text: 'Error al modificar al cliente',
+        text: 'Error: ' + err.errmessage,
         icon: 'error',
         confirmButtonText: 'Close'
       });
@@ -360,11 +387,20 @@ async  getNextMonthDate() {
                     icon: 'success',
                     confirmButtonText: 'Close'
                   });
-        });
+        }).catch((err: any) => {
+          this.closeModal.nativeElement.click();
+          this.formSubmissionFlag = false;
+          Swal.fire({
+            title: '',
+            text: 'Error: ' + err.errmessage,
+            icon: 'error',
+            confirmButtonText: 'Close'
+          });
         
-      }
-    });
-  }
+      });
+    }
+  });
+}
 
   validForm() {
     this.errors = [];

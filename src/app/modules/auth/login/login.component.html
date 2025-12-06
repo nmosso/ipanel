@@ -1,12 +1,12 @@
 <div class="hold-transition login-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="javascript:void(0)"><b>Admin</b> Xi</a>
+    <a href="javascript:void(0)"><b>Admin</b> IK Panel</a>
   </div>
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign In here</p>
+      <p class="login-box-msg">Insert your credentials</p>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSingIn()">
         <div class="input-group mb-3">
@@ -26,10 +26,9 @@
           </div>
         </div>
       <div class="form-group">
-        <!-- "6Lci-VsqAAAAAI7RGCIXOlvBii7TrTWYh9dPSRjO"  "6LfzE-MqAAAAAOATbFgG7_y04Tl8ijktToU2w7DP"  -->
         <re-captcha
           formControlName="recaptcha"
-          siteKey="6Lci-VsqAAAAAI7RGCIXOlvBii7TrTWYh9dPSRjO" 
+          siteKey="6LdR1dgrAAAAAMTTMpY2ZuR01sWq6g0vRltJGpXM" 
           (resolved)="resolvedCaptcha($event)">
         </re-captcha>
       </div>        
@@ -38,7 +37,7 @@
             <div class="icheck-primary">
               <input type="checkbox" id="remember">
               <label for="remember">
-                Recordarme en este equipo
+                Remind me on this device
               </label>
             </div>
           </div>
@@ -50,7 +49,7 @@
         </div>
       </form>
 <!--
-      </re-captcha>"6LfC4C0qAAAAAETi0ygID55guS7VZ_tBIuWZTZ46" >
+      </re-captcha>"6LdR1dgrAAAAAMTTMpY2ZuR01sWq6g0vRltJGpXM" >
       <div class="social-auth-links text-center mb-3">
         <p>- OR -</p>
         <a href="#" class="btn btn-block btn-primary">
@@ -65,9 +64,9 @@
       <p class="mb-1">
         <a href="/reset-password" (click)="moveToForgetPassword()">Reset Password</a>
       </p>
-      <p class="mb-0">
+      <!--p class="mb-0">
         <a href="javascript:void(0)" class="text-center">Register</a>
-      </p>
+      </p-->
     </div>
     <!-- /.login-card-body -->
   </div>

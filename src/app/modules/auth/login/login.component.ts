@@ -38,7 +38,7 @@ export class LoginComponent {
       this.router.navigate(['/dashboard']);
     }).catch((err:any)=>{
       console.error('Login error: ');
-      //console.error(JSON.stringify(err));
+      console.error(JSON.stringify(err));
       this.isError = true;
       alert(err.error.errmessage);
     })

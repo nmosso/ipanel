@@ -32,41 +32,42 @@ export class ResetPasswordComponent {
   }
 
 
-  onResetPassword(){
-   this.isError = false;
-   /*
-   this.authService.resetPassword(this.resetPasswordForm.value,this.token)?.subscribe((res:any)=>{
-    if(res.status === 'success'){
-      this.router.navigate(['/login']);
-    }else{
-      this.isError = true;
-    }
 
-   }, err=>{
-    this.isError = true;
-    this.successMsg = 'Token is expired';
-   })
-   */
+  onResetPassword() {
+    this.isError = false;
+
+    this.authService.resetPassword(this.resetPasswordForm.value, this.token).then((res: any) => {
+      if (res.status === 'success') {
+        this.router.navigate(['/login']);
+      } else {
+        this.isError = true;
+      }
+
+    }, err => {
+      this.isError = true;
+      this.successMsg = 'Token is expired';
+    })
+
 
   }
 
-  onEmailScreenClick(){
+  onEmailScreenClick() {
     this.isError = false;
     this.emailProcessing = true;
-    /*
-    this.authService.forgetPassword(this.emailForm.value)?.subscribe((res:any)=>{
-      this.emailProcessing = false;
-     if(res.status === 'success'){
-       this.successMsg = 'Reset Password Email Has Been Sent To Your Account';
-     }else{
-       this.isError = true;
-       this.successMsg = 'There is Problem in sending email';
-     }
 
-    }, err=>{
-     this.isError = true;
+    this.authService.forgetPassword(this.emailForm.value).then((res: any) => {
+      this.emailProcessing = false;
+      if (res.status === 'success') {
+        this.successMsg = 'Reset Password Email Has Been Sent To Your Account';
+      } else {
+        this.isError = true;
+        this.successMsg = 'There is Problem in sending email';
+      }
+
+    }, err => {
+      this.isError = true;
     })
-    */
+
   }
 
 }

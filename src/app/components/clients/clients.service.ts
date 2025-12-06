@@ -28,9 +28,24 @@ export class ClientsService {
       }).catch((err)=>{
         console.log(`Catched`);
         console.log(err);
-        reject(err);
+        reject(err.error);
       });
  
+    });
+
+  }
+  async getClientinfo(clientid: string = "") {
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `${ENDPOINTS.clients}/${clientid}`;
+      this.http.requestCall(endpoint, ApiMethod.GET).then((data: any) => { //getchannelsinfo
+        console.log(data);
+        resolve(data) //     
+      }).catch((err) => {
+        console.log(`Catched`);
+        console.log(err);
+        reject(err.error);
+      });
+
     });
 
   }
@@ -44,7 +59,7 @@ export class ClientsService {
       }).catch((err:any)=> {
         console.log('Error en POST Add Client');
         console.log(err);
-        reject(err);
+        reject(err.error);
       });
  
     });
@@ -59,7 +74,7 @@ export class ClientsService {
       }).catch((err:any)=> {
         console.log('Error en POST Update Client');
         console.log(err);
-        reject(err);
+        reject(err.error);
       });
  
     });
@@ -75,9 +90,25 @@ export class ClientsService {
       }).catch((err:any)=> {
         console.log('Error en Delete Add Client');
         console.log(err);
-        reject(err);
+        reject(err.error);
       });
  
+    });
+
+  }
+
+  async clientUpdateStatus(clientid: string, status: string) {
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `${ENDPOINTS.clients}/${clientid}/status/${status}`
+      this.http.requestPost(endpoint).then((data: any) => { //getchannelsinfo
+        console.log(data);
+        resolve(data.clients) //     
+      }).catch((err: any) => {
+        console.log('Error en POST Update Client');
+        console.log(err);
+        reject(err.error);
+      });
+
     });
 
   }

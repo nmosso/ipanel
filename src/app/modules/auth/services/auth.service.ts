@@ -18,12 +18,37 @@ export class AuthService {
     
   }
 
-  resetPassword(data:any,token) {
+  resetPassword(info: any, token: any) {
     //return this.http.requestCall(API_ENDPOINTS.resetPassword,ApiMethod.POST,token,data)
+    return new Promise(async (resolve, reject) => {
+      let data = {
+        ...info,
+        token: token
+      }
+      let endpoint = `/users/resetpassword`
+      this.http.requestPost(endpoint, data).then((data: any) => {
+        resolve(data) //
+      }).catch((err: any) => {
+        console.log('Error en POST Reset password');
+        console.log(err);
+        reject(err);
+      })
+    });
   }
-  forgetPassword(data:any) {
-    //return this.http.requestCall(API_ENDPOINTS.forgetPassword,ApiMethod.POST,'',data)
+  forgetPassword(data: any) {
+    //return this.http.requestCall(API_ENDPOINTS.resetPassword,ApiMethod.POST,token,data)
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `/users/resetpasswordsendemail`
+      this.http.requestPost(endpoint, data).then((data: any) => {
+        resolve(data) //
+      }).catch((err: any) => {
+        console.log('Error en POST Reset password');
+        console.log(err);
+        reject(err);
+      })
+    });
   }
+
 
   signUp(data:any) {
     //return this.http.requestCall(API_ENDPOINTS.signUp,ApiMethod.POST,'',data)

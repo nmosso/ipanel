@@ -12,7 +12,7 @@
             <div class="form-group">
               <label for="account">Cliente</label>
               <input type="text" id="account" class="form-control" formControlName="account"
-                [ngClass]="{ 'is-invalid': errors.includes('account') }" placeholder="Cliente" />
+                [ngClass]="{ 'is-invalid': errors.includes('account') }" placeholder="Cliente" readonly />
               <span id="account-error" *ngIf="errors.includes('account')" class="error invalid-feedback">
                 {{ formError.account }}
               </span>
@@ -21,59 +21,27 @@
         
           <div class="col-md-4">
             <div class="form-group">
-              <label for="username">Usuario</label>
-              <input type="text" id="username" class="form-control" formControlName="username"
-                [ngClass]="{ 'is-invalid': errors.includes('username') }" placeholder="Username" />
-              <span id="username-error" *ngIf="errors.includes('username')" class="error invalid-feedback">
-                {{ formError.username }}
-              </span>
-            </div>
-          </div>
-        
-          <div class="col-md-4">
-            <div class="form-group">
               <label for="name">Contacto</label>
               <input type="text" id="name" class="form-control" formControlName="name"
-                [ngClass]="{ 'is-invalid': errors.includes('name') }" placeholder="Contacto" />
+                [ngClass]="{ 'is-invalid': errors.includes('name') }" placeholder="Contacto" readonly/>
               <span id="name-error" *ngIf="errors.includes('name')" class="error invalid-feedback">
                 {{ formError.name }}
               </span>
             </div>
           </div>
-        
-          <!-- Fila 2 -->
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="phone">Teléfono</label>
-              <input type="tel" id="phone" class="form-control" formControlName="phone"
-                [ngClass]="{ 'is-invalid': errors.includes('phone') }" placeholder="Teléfono" />
-              <span id="phone-error" *ngIf="errors.includes('phone')" class="error invalid-feedback">
-                {{ formError.phone }}
-              </span>
-            </div>
-          </div>
-        
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="email">Correo Electrónico</label>
-              <input type="email" id="email" class="form-control" formControlName="email"
-                [ngClass]="{ 'is-invalid': errors.includes('email') }" placeholder="Correo Electrónico" />
-              <span id="email-error" *ngIf="errors.includes('email')" class="error invalid-feedback">
-                {{ formError.email }}
-              </span>
-            </div>
-          </div>
-        
+
           <div class="col-md-4">
             <div class="form-group">
               <label for="location">Localidad</label>
               <input type="text" id="location" class="form-control" formControlName="location"
-                [ngClass]="{ 'is-invalid': errors.includes('location') }" placeholder="Localidad" />
+                [ngClass]="{ 'is-invalid': errors.includes('location') }" placeholder="Localidad" readonly />
               <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">
                 {{ formError.location }}
               </span>
             </div>
           </div>
+        
+    
         
           <!-- Fila 3 -->
           <div class="col-md-4">
@@ -98,8 +66,23 @@
               </div>
             </div>
           </div>
-        
-          <div class="col-md-4">
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="plan">Dia de corte</label>
+                <select id="dueday" class="form-control" formControlName="dueday"
+                  [ngClass]="{ 'is-invalid': errors.includes('dueday') }">
+                  <option [ngValue]="null" disabled>Selecciona día</option>
+                  <option *ngFor="let d of days" [ngValue]="d">{{ d }}</option>
+                </select>
+                
+                <span id="dueday-error" *ngIf="errors.includes('dueday')" class="error invalid-feedback">
+                  {{ formError.plan }}
+                </span>
+            </div>
+          </div>
+          <div class="col-md-1"></div>
+          <div class="col-md-2"></div>
+<!--           <div class="col-md-4">
             <div class="form-group">
               <label for="lastpayment">Último pago</label>
               <div class="input-group">
@@ -109,7 +92,7 @@
                 <button class="btn btn-outline-secondary bi bi-calendar3" type="button" (click)="payPicker.toggle()"></button>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
 
@@ -122,6 +105,16 @@
               <span id="obs-error" *ngIf="errors.includes('obs')" class="error invalid-feedback">{{ formError.obs
                 }}</span>
             </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+              <button type="button"                       
+                      style="float: right"
+                      class="btn btn-primary"
+                      (click)="updateClient()">
+                Guardar
+              </button>
           </div>
         </div>
       </form>
@@ -142,4 +135,133 @@
       </ng-container>
     </div-->
   </div>
+
+  <section class="content">
+    <div class="container-fluid">
+      <!-- /.row -->
+  
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Cliente:</h3>
+
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive p-0">
+              <table *ngIf="allDevices.length > 0" datatable [dtOptions]="dtOptions"
+                class="row-border hover table table-hover text-nowrap">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <!-- <th>Usuario</th> -->
+  
+                    <th>Marca</th>
+                    <th>Codigo</th>
+                    <th>Usuario</th>
+                    <th>Act.</th>
+                    <th>IP</th>
+                    <th>Estado</th>
+                    <th>Ult</th>
+                    <th>Tiempo</th>
+                    <th>Canal</th>
+                    <th>Status</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let devices of allDevices; trackBy: trackByDeviceId"
+                    [style.--bs-table-bg]="statusBg(devices.clientstatus)"
+                    [style.--bs-table-color]="statusFg(devices.clientstatus)"
+                    [style.--bs-table-striped-bg]="statusStripe(devices.clientstatus)"
+                    [style.--bs-table-hover-bg]="statusHover(devices.clientstatus)">
+                    <td>{{ devices.deviceid }}</td>
+                    <!-- <td>{{ clients.username }}</td> -->
+  
+                    <td>{{ devices.brand }}</td>
+                    <td>{{ devices.barcode }}</td>
+                    <td>{{ devices.username }}</td>
+                    <td>{{ devices.activationdate }}</td>
+                    <td>{{ devices.lastip}}</td>
+                    <td>{{ devices.clientstatus }} </td>
+                    <td>{{devices.lastecm}} </td>
+                    <td>{{devices.ltime}}</td>
+                    <td>{{ devices.lastchannel }}</td>
+  
+                    <td>
+                      <div class="custom-control custom-switch">
+                        <input type="checkbox" [checked]="devices.status == 'enabled'" class="custom-control-input"
+                          (change)="updateDeviceStatus(devices)" [id]="devices.username" />
+                        <label class="custom-control-label" *ngIf="devices.status == 'enabled'"
+                          [for]="devices.username"></label>
+                        <label class="custom-control-label" *ngIf="devices.status == 'disabled'"
+                          [for]="devices.username"></label>
+                      </div>
+                    </td>
+                    <td>
+                      <i class="fas fa-trash" (click)="delete(devices)"></i>
+                      <i class="fas fa-pen" style="margin-left: 15px" (click)="devicesread(devices)" data-toggle="modal"
+                        data-target="#clients-modal"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+  </section>
+
 </div>
+
+
+<div class="modal fade" id="clients-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" *ngIf="!editPopup">Agregar Equipo</h4>
+        <h4 class="modal-title" *ngIf="editPopup">Editar Equipo</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="deviceForm">
+          <div class="card-body">
+
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="obs">Observaciones</label>
+                  <textarea formControlName="obs" class="form-control"
+                    [ngClass]="{ 'is-invalid': errors.includes('obs') }" id="obs"
+                    placeholder="Observaciones"></textarea>
+                  <span id="obs-error" *ngIf="errors.includes('obs')" class="error invalid-feedback">{{ formError.obs
+                    }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" #closeModal data-dismiss="modal"
+          (click)="clearForm()">Close</button>
+        <button type="button" *ngIf="!editPopup" (click)="create()" class="btn btn-primary">Create</button>
+        <button type="button" *ngIf="editPopup" [disabled]="formSubmissionFlag" (click)="update()"
+          class="btn btn-primary">
+          <div class="spinner-border text-light spinner" *ngIf="formSubmissionFlag"></div>
+          Save changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+

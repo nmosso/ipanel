@@ -17,6 +17,9 @@ export const ENDPOINTS = {
   devices: '/v3/devices',  //
   brands: '/v3/brands',  //
   stats: '/v3/stats',  //
+  userstats: '/v3/userstats',  //
+  users: '/v3/users',  //
+  tenants: '/tenants',  //
 
   channels: '/v3/channels',  //getchannelsinfo
   listCategories:'/v2/tenant/categories', //xServer 

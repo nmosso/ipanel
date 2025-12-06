@@ -3,12 +3,12 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1>Clientes</h1>
+        <h1>List of Devices</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item active">Equipos</li>
+          <li class="breadcrumb-item active">Devices</li>
         </ol>
       </div>
     </div>
@@ -25,23 +25,35 @@
       <div class="col-12">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Cliente: {{clientname}}</h3>
-            <button
-              type="button"
-              data-toggle="modal"
-              data-target="#clients-modal"
-              class="card-title btn btn-primary"
-              style="float: right"
-              class="btn btn-primary"
-              (click)="newDevice()"
-            >
-              Agregar Equipo
-            </button>
+            <div class="row">
+              <div class="col-8">
+
+              </div>
+              <div class="col-2">
+                  <select class="form-select" [(ngModel)]="allDevicesInfo" (change)="updateDevicesInfoStatus()">
+                    <option [ngValue]="true">Unattended Devices</option>
+                    <option [ngValue]="false">All</option>
+                  </select>
+              </div>
+              <div class="col-2">
+                    <button
+                      type="button"
+                      data-toggle="modal"
+                      data-target="#devices-modal"
+                      class="card-title btn btn-primary"
+                      style="float: right"
+                      class="btn btn-primary"
+                      (click)="newDevice()"
+                    >
+                      Add new Device
+                    </button>
+              </div>
+            </div>
           </div>
           <!-- /.card-header -->
           <div class="card-body table-responsive p-0">
             <table
-            *ngIf="allDevices.length > 0"
+            *ngIf="allFilteredDevices.length > 0"
               datatable [dtOptions]="dtOptions"
               class="row-border hover table table-hover text-nowrap"
             >
@@ -50,21 +62,21 @@
                   <th>ID</th>
                   <!-- <th>Usuario</th> -->
                   
-                  <th>Marca</th>
-                  <th>Codigo</th>
-                  <th>Usuario</th>
-                  <th>Cliente</th>
+                  <th>Brand</th>
+                  <th>Barcode</th>
+                  <th>Username</th>
+                  <th>Client</th>
                   <th>IP</th>
-                  <th>Estado</th>
-                  <th>Ult</th>
-                  <th>Tiempo</th>
+                  <th>State</th>
+                  <th>Last</th>
+                  <th>Time</th>
+                  <th>Channel</th>
                   <th>Status</th>
-                  <th>Canal</th>
-                  <th>Acciones</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let devices of allDevices; trackBy: trackByDeviceId"
+                <tr *ngFor="let devices of allFilteredDevices; trackBy: trackByDeviceId"
                     [style.--bs-table-bg]="statusBg(devices.clientstatus)"
                     [style.--bs-table-color]="statusFg(devices.clientstatus)"
                     [style.--bs-table-striped-bg]="statusStripe(devices.clientstatus)"
@@ -76,8 +88,8 @@
                   <td>{{ devices.brand }}</td>
                   <td>{{ devices.barcode }}</td>
                   <td>{{ devices.username }}</td>
-                  <td>{{ devices.username }}</td>
-                  <td>{{devices.lastip}}</td>
+                  <td><a href="/clients/{{devices.clientid}}">{{ devices.account }}</a></td> 
+                  <td>{{ devices.lastip}}</td>
                   <td>{{ devices.clientstatus }} </td>
                   <td>{{devices.lastecm}} </td>
                   <td>{{devices.ltime}}</td>
@@ -107,16 +119,22 @@
                     </div>
                   </td>
                   <td>
-                    <i class="fas fa-trash" (click)="delete(devices)"></i>
+                    <!--i class="fas fa-trash" (click)="delete(devices)"></i -->
                     <i
                       class="fas fa-pen"
                       style="margin-left: 15px"
                       (click)="read(devices)"
                       data-toggle="modal"
+                      data-target="#devices-modal"
+                    ></i>
+                    <i
+                      class="fas fa-user-circle"
+                      style="margin-left: 15px"
+                      (click)="read(devices)"
+                      data-toggle="modal"
                       data-target="#clients-modal"
                     ></i>
-                    <i class="fas fa-plus" style="margin-left: 15px" (click)="devicesadd(devices)" data-toggle="modal"
-                      data-target="#clients-modal"></i>
+
                   </td>
                 </tr>
               </tbody>
@@ -133,7 +151,7 @@
 </section>
 <!-- /.content -->
 
-<div class="modal fade" id="clients-modal">
+<div class="modal fade" id="devices-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -149,21 +167,27 @@
           <div class="row">
             <div class="col-md-12">
           
-              <div class="form-group">
+               <div class="form-group">
                 <label for="clientid">Cliente</label>
-                <select formControlName="clientid" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('clientid') }"
+                <select formControlName="clientid" class="form-control" 
+                      [ngClass]="{
+                        'is-invalid': false 
+                      }"
                   id="clientid">
                   <option value="">Seleccione un cliente</option>
-                  <option *ngFor="let c of allClients" [value]="c.clientid">{{ c.name }}</option>
+                  <option *ngFor="let c of allClients" [value]="c.clientid">{{ c.account }}</option>
                 </select>
                 <span id="clientid-error" *ngIf="errors.includes('clientid')" class="error invalid-feedback">
                   {{ formError.clientid }}
                 </span>
-              </div>
+              </div> 
           
               <div class="form-group">
                 <label for="brand">Marca</label>
-                <select formControlName="brand" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('brand') }"
+                <select formControlName="brand" class="form-control"
+                   [ngClass]="{ 'is-invalid': errors.includes('brand') 
+
+                   }"
                   id="brand">
                   <option value="">Seleccione una marca</option>
                   <option *ngFor="let b of allBrands" [value]="b.brand">{{ b.brand }}</option>
@@ -173,42 +197,53 @@
                 </span>
               </div>
           
-              <div class="form-group">
+              <div class="form-group" [formGroup]="deviceForm">
                 <label for="barcode">Código de Barras</label>
-                <input type="text" formControlName="barcode" class="form-control"
-                  [ngClass]="{ 'is-invalid': errors.includes('barcode') }" id="barcode" placeholder="Código de Barras" />
-                <span id="barcode-error" *ngIf="errors.includes('barcode')" class="error invalid-feedback">
-                  {{ formError.barcode }}
+                <input type="text" formControlName="barcode" class="form-control" [ngClass]="{
+                    'is-invalid':
+                      deviceForm.get('barcode')?.touched &&
+                      deviceForm.get('barcode')?.hasError('barcodeExists')
+                  }" id="barcode" placeholder="Código de Barras" />
+
+                <span id="barcode-error" class="error invalid-feedback" *ngIf="
+                    deviceForm.get('barcode')?.touched &&
+                    deviceForm.get('barcode')?.hasError('barcodeExists')
+                  ">
+                  Ya existe un dispositivo con ese código.
                 </span>
               </div>
-          
-              <div class="form-group">
+              <div class="form-group" [formGroup]="deviceForm">
                 <label for="username">Usuario</label>
-                <input type="text" formControlName="username" class="form-control"
-                  [ngClass]="{ 'is-invalid': errors.includes('username') }" id="username" placeholder="Usuario" />
-                <span id="username-error" *ngIf="errors.includes('username')" class="error invalid-feedback">
-                  {{ formError.username }}
+                <input type="text" formControlName="username" class="form-control" [ngClass]="{
+                                  'is-invalid':
+                                    deviceForm.get('username')?.touched &&
+                                    (deviceForm.get('username')?.hasError('usernameNotExists') ||
+                                    deviceForm.get('username')?.hasError('usernameAssigned'))
+                                }" id="username" placeholder="Usuario"/>
+              
+                <span id="username-error" class="error invalid-feedback" *ngIf="
+                                  deviceForm.get('username')?.touched &&
+                                  deviceForm.get('username')?.hasError('usernameNotExists')
+                                ">
+                  El usuario no existe como parte de la base de codigos.
+                </span>
+                <span id="username-error" class="error invalid-feedback" *ngIf="
+                                    deviceForm.get('username')?.touched &&
+                                    deviceForm.get('username')?.hasError('usernameAssigned')
+                                  ">
+                  El usuario ya está asignado a otro dispositivo.
                 </span>
               </div>
+
           
               <div class="form-group">
                 <label for="password">password</label>
                 <input type="text" formControlName="password" class="form-control"
-                  [ngClass]="{ 'is-invalid': errors.includes('password') }" id="password" placeholder="Contraseña" />
+                  [ngClass]="{ 'is-invalid': errors.includes('password') }" id="password" placeholder="Contraseña" readonly/>
                 <span id="password-error" *ngIf="errors.includes('password')" class="error invalid-feedback">
                   {{ formError.password }}
                 </span>
               </div>
-          
-              <div class="form-group">
-                <label for="location">Localidad</label>
-                <input type="text" formControlName="location" class="form-control"
-                  [ngClass]="{ 'is-invalid': errors.includes('location') }" id="location" placeholder="Localidad" />
-                <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">
-                  {{ formError.location }}
-                </span>
-              </div>
-
           
             </div>
           </div>
@@ -217,7 +252,11 @@
               <div class="col-md-12">
                 <div class="form-group">
                   <label for="obs">Observaciones</label>
-                  <textarea formControlName="obs" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('obs') }" id="obs" placeholder="Observaciones"></textarea>
+                  <textarea formControlName="obs" class="form-control" 
+                      [ngClass]="{
+                        'is-invalid': false 
+                      }"
+                       id="obs" placeholder="Observaciones"></textarea>
                   <span id="obs-error" *ngIf="errors.includes('obs')" class="error invalid-feedback">{{ formError.obs }}</span>
                 </div>
               </div>
@@ -227,10 +266,16 @@
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-default" #closeModal data-dismiss="modal" (click)="clearForm()">Close</button>
-        <button type="button" *ngIf="!editPopup" (click)="create()" class="btn btn-primary">Create</button>
-        <button type="button" *ngIf="editPopup" [disabled]="formSubmissionFlag" (click)="update()" class="btn btn-primary">
+        <button type="button" *ngIf="!editPopup" 
+            [disabled]=" formSubmissionFlag ||  deviceForm.pending "
+            (click)="create()" class="btn btn-primary">
+            Crear Equipo 
+        </button>
+        <button type="button" *ngIf="editPopup" 
+            [disabled]="formSubmissionFlag || deviceForm.invalid"
+            (click)="update()" class="btn btn-primary">
           <div class="spinner-border text-light spinner" *ngIf="formSubmissionFlag"></div>
-          Save changes
+          Guardar Cambios
         </button>
       </div>
     </div>

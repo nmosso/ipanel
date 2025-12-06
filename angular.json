@@ -36,8 +36,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "800kb",
+                  "maximumError": "1.5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -76,7 +76,8 @@
               "browserTarget": "lte-angular:build:production-client"
             },            
             "development": {
-              "browserTarget": "lte-angular:build:development"
+              "browserTarget": "lte-angular:build:development",
+              "port": 4201
             }
           },
           "defaultConfiguration": "development"
