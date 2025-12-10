@@ -28,6 +28,7 @@ const routes: Routes = [
       { path: 'devices', loadChildren: () => import('./components/devices/devices.module').then(m => m.DevicesModule) },
       { path: 'devices/:clientid', loadChildren: () => import('./components/devices/devices.module').then(m => m.DevicesModule) },
       { path: 'resellers', loadChildren: () => import('./components/tenants/tenant.module').then(m => m.TenantModule) },
+      { path: 'params', loadChildren: () => import('./components/parameters/parameter.module').then(m => m.ParameterModule) },
       { path: 'logout', loadChildren: () => import('./modules/auth/services/auth.service').then(m => m.AuthService) },  
 
     ]

@@ -42,8 +42,14 @@ export class ApiService {
     return new Promise(async (resolve, reject) => { 
       let response;
       let errorMessage;
-      console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
-      const headers = { 'apikey': environment.apikey }
+      // console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
+      // const headers = { 'apikey': environment.apikey }
+      let token = localStorage.getItem('token') || '';
+      //console.log(`TOKEN:`,token)
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
+      });
+
       let url = `${API_URL}${api}`;
       if (params !== undefined && params.length > 0) {
         url = `${API_URL}${api}?${params}`;
@@ -68,9 +74,12 @@ export class ApiService {
     return new Promise(async (resolve, reject) => { 
       let response;
       let errorMessage;
-      console.log(`Post Apihttp request to:() ${API_URL}${api}`);
-     
-      let headers = { 'apikey': environment.apikey,Authorization:'' }
+      //console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
+      //const headers = { 'apikey': environment.apikey }
+      let token = localStorage.getItem('token') || '';
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
+      });
       let url = `${API_URL}${api}`;
       console.log(`DATA`)
       console.log(data)
@@ -95,8 +104,13 @@ export class ApiService {
     return new Promise(async (resolve, reject) => { 
       let response;
       let errorMessage;
-      console.log(`PUT Apihttp request to:() ${API_URL}${api}`);
-      const headers = { 'apikey': environment.apikey }
+      //console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
+      //const headers = { 'apikey': environment.apikey }
+      let token = localStorage.getItem('token') || '';
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
+      });
+
       let url = `${API_URL}${api}`;
       this.http.put<any>(url,data,{headers})
       .subscribe({next: data => {
@@ -118,8 +132,13 @@ export class ApiService {
     return new Promise(async (resolve, reject) => { 
       let response;
       let errorMessage;
-      console.log(`Delete Apihttp request to:() ${API_URL}${api}`);
-      const headers = { 'apikey': environment.apikey }
+      //console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
+      //const headers = { 'apikey': environment.apikey }
+      let token = localStorage.getItem('token') || '';
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
+      });
+      
       let url = `${API_URL}${api}`;
       this.http.delete<any>(url,{headers})
       .subscribe({next: data => {

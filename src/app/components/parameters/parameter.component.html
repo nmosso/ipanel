@@ -1,0 +1,84 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Parameters Management</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Parameters</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<div class="component-container" style="min-height: 207px;">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <div class="card-body">
+        <!-- Parameters summary / table -->
+
+        <form [formGroup]="userForm" novalidate>
+          <div class="row">
+            <!-- Columna 1 -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="dueday">Due Date</label>
+                <input type="number" id="dueday" class="form-control" formControlName="dueday"
+                  [ngClass]="{ 'is-invalid': errors.includes('dueday') }" placeholder="Día de vencimiento" />
+                <span id="dueday-error" *ngIf="errors.includes('dueday')" class="error invalid-feedback">
+                  {{ formError.dueday }}
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="extradays">Extra Days</label>
+                <input type="number" id="extradays" class="form-control" formControlName="extradays"
+                  [ngClass]="{ 'is-invalid': errors.includes('extradays') }" placeholder="Días extra" />
+                <span id="extradays-error" *ngIf="errors.includes('extradays')" class="error invalid-feedback">
+                  {{ formError.extradays }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Columna 2 -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="unitprice">Unit Price</label>
+                <input type="number" id="unitprice" class="form-control" formControlName="unitprice"
+                  [ngClass]="{ 'is-invalid': errors.includes('unitprice') }" placeholder="Precio unitario" />
+                <span id="unitprice-error" *ngIf="errors.includes('unitprice')" class="error invalid-feedback">
+                  {{ formError.unitprice }}
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="freeperiods">Free Periods</label>
+                <input type="number" id="freeperiods" class="form-control" formControlName="freeperiods"
+                  [ngClass]="{ 'is-invalid': errors.includes('freeperiods') }" placeholder="Períodos gratis" />
+                <span id="freeperiods-error" *ngIf="errors.includes('freeperiods')" class="error invalid-feedback">
+                  {{ formError.freeperiods }}
+                </span>
+              </div>
+            </div>
+          </div>
+        <div class="row">
+          <div class="col-md-12">
+            <button type="button" style="float: right" class="btn btn-primary" (click)="update()">
+              Guardar
+            </button>
+          </div>
+        </div>
+        </form>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </div>
+  </div>
+  <!-- /.row -->
+</div>

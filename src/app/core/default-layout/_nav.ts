@@ -24,6 +24,12 @@ export const navItems: any[] = [
     iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
   },
   {
+    name: 'Parameters',
+    url: '/params',
+    auth: ['tenant', 'superadmin', 'admin'],
+    iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
+  },
+  {
     name: 'SuperAdmin',
     url: '/videos',
     auth: ['superadmin'],
