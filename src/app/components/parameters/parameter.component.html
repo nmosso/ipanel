@@ -67,13 +67,31 @@
               </div>
             </div>
           </div>
-        <div class="row">
-          <div class="col-md-12">
-            <button type="button" style="float: right" class="btn btn-primary" (click)="update()">
-              Guardar
-            </button>
+          <!-- Columna 2 -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="currency">Currency</label>
+              <select formControlName="currency" class="form-control" [ngClass]="{
+                                      'is-invalid': false 
+                                    }" id="clientid">
+                <option value="">Select Currency</option>
+                <option *ngFor="let c of CurrenciesList" [value]="c.code">{{ c.name }}</option>
+              </select>
+
+              <span id="currency-error" *ngIf="errors.includes('currency')" class="error invalid-feedback">
+                {{ formError.currency }}
+              </span>
+            </div>
+
+
           </div>
-        </div>
+          <div class="row">
+            <div class="col-md-12">
+              <button type="button" style="float: right" class="btn btn-primary" (click)="update()">
+                Guardar
+              </button>
+            </div>
+          </div>
         </form>
         <!-- /.card-body -->
       </div>

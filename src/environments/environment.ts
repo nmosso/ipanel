@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  api: "http://api-sandbox.ikpanel.xyz",
+  api: "https://api.ikpanel.xyz", // Production:https://api.ikpanel.xyz   TEST=> http://api-sandbox.ikpanel.xyz
   clientType: "client",
   apikey: "655e9e9c-92a4-4c12-be90-990a5705a896",
   env_type: 1,

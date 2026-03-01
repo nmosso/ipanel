@@ -1,0 +1,101 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>List of Credits</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Credits</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- /.row -->
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-2">
+                <select class="form-select" [(ngModel)]="allCreditsInfo" (change)="updateCreditsInfoStatus()">
+                  <option [ngValue]="true">Unattended Credits</option>
+                  <option [ngValue]="false">All</option>
+                </select>
+              </div>
+              <div class="col-8">
+
+              </div>
+              <div class="col-2" *ngIf="role != 'tenant'">
+                <button type="button" data-toggle="modal" data-target="#credits-modal"
+                  class="card-title btn btn-primary" style="float: right" class="btn btn-primary" (click)="newCredit()">
+                  Add new Credit
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body table-responsive p-0">
+            <table *ngIf="allFilteredCredits.length > 0" datatable [dtOptions]="dtOptions"
+              class="row-border hover table table-hover text-nowrap">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <!-- <th>Usuario</th> -->
+                  <th *ngIf="role == 'tenant'">Client</th>
+                  <th *ngIf="role !== 'tenant'">Reseller</th>
+                  <th>Brand</th>
+                  <th>Barcode</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let credits of allFilteredCredits; trackBy: trackByCreditId"
+                  [ngClass]="rowClass[credits.status.toLowerCase()] || ''">
+                  <td>{{ credits.creditid }}</td>
+                  <!-- <td>{{ clients.username }}</td> -->
+                  <td *ngIf="role !== 'tenant'">{{ credits.reseller }}</td>
+                  <td *ngIf="role == 'tenant'"><a href="/clients/{{credits.clientid}}">{{ credits.account }}</a></td>
+                  <td>{{ credits.brand }}</td>
+                  <td>{{ credits.barcode }}</td>
+                  <td>{{ credits.datestart }}</td>
+                  <td>{{ credits.dateend}}</td>
+                  <td>{{ credits.status }} </td>
+                  <td>{{ credits.dueid}} </td>
+
+                  
+                  <td>
+                    <!--i class="fas fa-trash" (click)="delete(credits)"></i -->
+                    <i class="fas fa-pen" style="margin-left: 15px" (click)="read(credits)" data-toggle="modal"
+                      data-target="#credits-modal"></i>
+                    <i class="fas fa-user-circle" style="margin-left: 15px" (click)="read(credits)"
+                      data-toggle="modal" data-target="#clients-modal"></i>
+
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+<!-- /.content -->

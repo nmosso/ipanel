@@ -35,6 +35,10 @@ export class ParameterComponent implements OnInit {
   popUpShowHideFlag: boolean;
   editPopup: boolean;
   formSubmissionFlag: boolean = false;
+  CurrenciesList: any = [
+    { code: 'USD', name: 'US Dollar' },
+    { code: 'ARS', name: 'Argentinian Peso' }];
+
   constructor(
     private roleService: RolesService,
     private socket: SocketService,
@@ -87,6 +91,7 @@ export class ParameterComponent implements OnInit {
       unitprice: new FormControl(null, [Validators.required]),
       extradays: new FormControl(null, [Validators.required]),
       freeperiods: new FormControl(null, [Validators.required]),
+      currency: new FormControl(null, [Validators.required]),
     });
   }
   read(i: any) {
@@ -103,7 +108,7 @@ export class ParameterComponent implements OnInit {
     formData.append('unitprice', this.userForm.value.unitprice);
     formData.append('extradays', this.userForm.value.extradays);
     formData.append('freeperiods', this.userForm.value.freeperiods);
-
+    formData.append('currency', this.userForm.value.currency);
 
     this.parametersService.updateParameters(formData).then((res: any) => {
       if (res.status === 'success') {

@@ -48,12 +48,14 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
   devicesconnected: number = 0;
   devicesoffline: number = 0;
   devicesdisabled: number = 0;
+  credits: number = 0;
 
   adminrole: string[]; //*ngIf="multirole.includes(role)"
   operatorrole: string[]; //*ngIf="multirole.includes(role)"
   role:string;
 //  cardserverId = 'Cardserver01';  // setéalo según tu UI/route
   cardservers = ['Cardserver01', 'Cardserver02', 'Cardserver03']; //, 'Cardserver04'
+  feeders=[];
   emmtypes = ['shared', 'global'] as const;
 
   private readonly colsPerSrv = 3; // last5, shared, global
@@ -77,6 +79,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
   cardreaderslist: any = [];
   cardserversEnabled: Cardserver[] = [];
   cardreadersForServer: Cardreader[] = [];
+
 
   selectedCardserverid:string= null;
   selectedCardreader: string = null;
@@ -109,16 +112,60 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       this.devicesconnected = data.devicesconnected ?? 0;
       this.devicesoffline = data.devicesoffline ?? 0;
       this.devicesdisabled = data.devicesdisabled ?? 0;
+      this.credits = data.credits ?? 0;
         //console.log("statistics:",data);
     })
   }
+
+  /**Metodos para Feeders */
+  getCardServer(feeder: any, cardserver: string) {
+    return feeder.cardservers.find((c: any) => c.cardserver === cardserver);
+  }
+
+  getState(feeder: any, cardserver: string): string {
+    const cs = this.getCardServer(feeder, cardserver);
+    return cs ? cs.state : 'missing';
+  }
+
+  isEnabled(feeder: any, cardserver: string): boolean {
+    const cs = this.getCardServer(feeder, cardserver);
+    return cs?.status === 'enabled';
+  }
+
+  onSelect(feederId: string, cardserver: string) {
+    console.log('Seleccionado:', feederId, cardserver);
+    // Aquí haces tu lógica para mover el cardserver
+    const data = { feeder: feederId, cardserver: cardserver };
+    this.http.PostQuery ('enablefeederstatus', data ).then((data: any) => {
+      this.http.getQuery('feederlist').then((data: any) => {
+        this.feeders = data;
+      })
+    }).catch((err: any) => {
+      console.log(err)});
+  }
+
+  getStateClass(feeder: any, cardserver: string) {
+    const state = this.getState(feeder, cardserver);
+
+    return {
+      'bg-success text-white': state === 'active',
+      'bg-secondary text-white': state === 'inactive',
+      'bg-danger text-white': state === 'missing',
+      'bg-primary text-white': state === 'conflict'
+    };
+  }
+
   async getcardservers() {
     //let params = {noclients: 'true'};
     //console.log("getcardservers ----------------------------------------------------------------------------");
     this.emmService.getCardServers().then(async (data: any) => { //getchannelsinfo
 
-      this.cardserverslist = data;
+    this.cardserverslist = data;
       //console.log(this.cardserverslist)
+
+      this.http.getQuery('feederlist').then((data:any)=>{
+        this.feeders = data;
+      })
     });
   }
   async getcardreaders() {

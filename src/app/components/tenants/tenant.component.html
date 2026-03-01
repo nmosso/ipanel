@@ -49,9 +49,9 @@
                 <tr>
                   <th>Reseller</th>
                   <th>Contact</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Location</th>
+                  <th>Clients</th>
+                  <th>Devices</th>
+                  <th>Credits</th>
                   <th>Status</th>
 <!--                   <th>Login Status</th> -->
                   <th>Actions</th>
@@ -61,9 +61,9 @@
                 <tr *ngFor="let user of allUsers; trackBy: trackByDeviceId">
                   <td>{{ user.tenant }}</td>
                   <td>{{ user.client }}</td>
-                  <td>{{ user.email }}</td>
-                  <td>{{ user.phone }}</td>
-                  <td>{{ user.location }}</td>
+                  <td>{{ user.clients }}</td>
+                  <td>{{ user.devices }}</td>
+                  <td>{{ user.credits }}</td>
                   <td>
                     <div class="custom-control custom-switch">
                       <input

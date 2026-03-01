@@ -10,34 +10,28 @@ import { catchError } from 'rxjs/operators';
 export class ApiService {
 
   constructor(private http: HttpClient) { }
-/*
-  requestLocalFastCall(api: string, method: ApiMethod, params?: string, data?: any) {
-    return new Promise(async (resolve, reject) => { 
-      let response;
-      let errorMessage;
-      console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
-      const headers = { 'apikey': environment.apikey }
-      let url = `${FASTAPI_URL}${api}?${params}`;
-      this.http.get<any>(url,{headers})
-      .subscribe({next: data => {
-              console.log(`original data`)
-              console.log(data)
-              response = data;
-              resolve(data);
-          },
-          error: error => {
-              console.log(`Error on request`)
-              errorMessage = error.message;
-              console.error('There was an error!', error);
-              reject(errorMessage)
-          }
-        });
-    }).catch((err:any)=>{
-      console.log(`Error: Uncaught (in promise): Both the table and dtOptions cannot be empty`)
-      console.log(err)
+
+  async getQuery(fn: string, params: string = '') {
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `/v3/query/${fn}`
+      this.requestCall(endpoint, ApiMethod.GET, params).then((data: any) => { //getchannelsinfo
+        console.log(data);
+        resolve(data) //     
+      });
+
     });
   }
-  */
+
+  async PostQuery(fn: string, params: any) {
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `/v3/query/${fn}`
+
+      this.requestPost(endpoint, params).then((data: any) => {
+        resolve(data) //
+      });
+
+    });
+  }
   requestCall(api: string, method: ApiMethod, params?: string, data?: any) {
     return new Promise(async (resolve, reject) => { 
       let response;
@@ -81,8 +75,8 @@ export class ApiService {
         'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
       });
       let url = `${API_URL}${api}`;
-      console.log(`DATA`)
-      console.log(data)
+      //console.log(`DATA`)
+      //console.log(data)
       
       this.http.post<any>(url,data,{headers})
       .subscribe({next: data => {

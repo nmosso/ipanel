@@ -9,18 +9,17 @@ export class DevicesService {
 
   constructor(private http: ApiService) { }
 
-
-
   async getDevicesinfo(clientid: number = null, allDevicesInfo:boolean) {
     return new Promise(async (resolve, reject) => { 
-      let noclients = 'true';
-      if (allDevicesInfo !== true) noclients = 'false';
+      let noclients = (allDevicesInfo == true)?'true':'false';
+
       let endPoint = ENDPOINTS.devices;
       if (clientid !== null) {
         endPoint = `${ENDPOINTS.devices}?clientid=${clientid}&noclients=${noclients}`;
       } else {
         endPoint = `${ENDPOINTS.devices}?noclients=${noclients}`;
       }
+      console.log(`Final Endpoint: ${endPoint}`);
       this.http.requestCall(endPoint,ApiMethod.GET).then((data:any)=>{ //getchannelsinfo
       //console.log(data);
       resolve(data.devices) //     
@@ -32,6 +31,7 @@ export class DevicesService {
  
     });
   }
+
   async devicesAdd(formData) {
     return new Promise(async (resolve, reject) => { 
       //debugger
@@ -78,10 +78,10 @@ export class DevicesService {
     });
 
   }
-  async devicesDelete(formData) {
+  async devicesUnassign(formData) {
     
     return new Promise(async (resolve, reject) => { 
-      let endpoint = `${ENDPOINTS.devices}/${formData.username}`
+      let endpoint = `${ENDPOINTS.devices}/unasssign/${formData.deviceid}`
       this.http.requestDelete(endpoint,ApiMethod.DELETE,'').then((data:any)=>{ //
         console.log(data);
         resolve(data.devices) //  
@@ -95,6 +95,23 @@ export class DevicesService {
     });
 
   }
+  async devicesAssign(clientid: number, devices: any) {
+
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `${ENDPOINTS.devices}/asssign/${clientid}`
+      this.http.requestPost(endpoint, devices).then((data: any) => { //
+        console.log(data);
+        resolve(data.devices) //  
+
+      }).catch((err: any) => {
+        console.log('Error en Delete Add Client');
+        console.log(err);
+        reject(err.error);
+      });
+
+    });
+
+  }
 
   async getClientsinfo(params: string = "") {
     console.log(`getClientsinfo called with params: ${params}`);
@@ -102,6 +119,23 @@ export class DevicesService {
       this.http.requestCall(ENDPOINTS.clients, ApiMethod.GET, params).then((data: any) => { // 
         console.log(data);
         resolve(data.clients) //     
+      }).catch((err) => {
+        console.log(`Catched`);
+        console.log(err);
+        reject(err.error);
+      });
+
+    });
+
+  }
+
+  async getTenantsinfo(params: string = "") {
+    console.log(`getTenantsinfo called with params: ${params}`);
+    return new Promise(async (resolve, reject) => {
+      let endpoint = `/v3/query/tenantsgetlist`;
+      this.http.requestCall(endpoint, ApiMethod.GET, params).then((data: any) => { // 
+        console.log(data);
+        resolve(data) //     
       }).catch((err) => {
         console.log(`Catched`);
         console.log(err);
@@ -153,7 +187,7 @@ export class DevicesService {
         resolve(data.devices[0]) //     
       }).catch((err: any) => {
         console.log('Error en POST Add Client');
-        console.log(err);
+        //console.log(err);
         reject(err.error);
       });
 

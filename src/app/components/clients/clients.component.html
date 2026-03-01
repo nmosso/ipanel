@@ -26,35 +26,27 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">List of Clients</h3>
-            <button
-              type="button"
-              data-toggle="modal"
-              data-target="#clients-modal"
-              class="card-title btn btn-primary"
-              style="float: right"
-              class="btn btn-primary"
-              (click)="setForm()"
-            >
+            <button type="button" data-toggle="modal" data-target="#clients-modal" class="card-title btn btn-primary"
+              style="float: right" class="btn btn-primary" (click)="setForm()">
               Add new client
             </button>
           </div>
           <!-- /.card-header -->
           <div class="card-body table-responsive p-0">
-            <table
-            *ngIf="allClients.length > 0"
-              datatable [dtOptions]="dtOptions"
-              class="row-border hover table table-hover text-nowrap"
-            >
+            <table *ngIf="allClients.length > 0" datatable [dtOptions]="dtOptions"
+              class="row-border hover table table-hover text-nowrap">
               <thead>
                 <tr>
                   <th>ID</th>
                   <!-- <th>Usuario</th> -->
                   <th>Client</th>
-                  <th>Contact ad</th>
                   <th>Location</th>
-                  <th>Email</th>
-                  <th>Payment Day</th>
+
                   <th>Devices</th>
+                  <th>Currency</th>
+                  <th>Total Price</th>
+                  <th>Auto Renew</th>
+                  <th>Payment Day</th>
                   <th>Expires</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -64,45 +56,37 @@
                 <tr *ngFor="let clients of allClients; trackBy: trackByClientId">
                   <td>{{ clients.clientid }}</td>
                   <!-- <td>{{ clients.username }}</td> -->
-                  <td><a href="/clients/{{clients.clientid}}">{{ clients.account }}</a></td>
-                  <td>{{ clients.name }}</td>
+                  <td><a href="/clients/{{clients.clientid}}">{{ clients.account }} - {{clients.name}}</a></td>
+
                   <td>{{ clients.location }}</td>
-                  <td>{{ clients.email }}</td>
-                  <td>{{ clients.dueday }}</td>
                   <td>{{ clients.devices }}</td>
+                  <td>{{ clients.currency }}</td>
+                  <td>{{ clients.totalprice }}</td>
+                  <td>{{ clients.autorenew }}</td>
+                  <td>{{ clients.dueday }}</td>
                   <td>{{ clients.expiration }}</td>
+
                   <td>
                     <div class="custom-control custom-switch">
-                      <input
-                        type="checkbox"
-                        [checked]="clients.status == 'enabled'"
-                        class="custom-control-input"
-                        (change)="updateStatus(clients)"
-                        [id]="clients.username"
-                      />
-                      <label
-                        class="custom-control-label"
-                        *ngIf="clients.status == 'enabled'"
-                        [for]="clients.username"
-                        >{{clients.status}}</label
-                      >
-                      <label
-                        class="custom-control-label"
-                        *ngIf="clients.status == 'disabled'"
-                        [for]="clients.username"
-                        >{{clients.status}}</label
-                      >
+                      <input type="checkbox" [checked]="clients.status == 'enabled'" class="custom-control-input"
+                        (change)="updateStatus(clients)" [id]="clients.username"
+                        [disabled]="clients.substatus == 'New' || clients.substatus == 'Suspended'" />
+                      <label class="custom-control-label" *ngIf="clients.status == 'enabled'"
+                        [for]="clients.username">{{clients.substatus}}</label>
+                      <label class="custom-control-label"
+                        *ngIf="clients.status == 'disabled' && clients.substatus !== 'New'"
+                        [for]="clients.username">{{clients.substatus}}</label>
+                      <label class="custom-control-label"
+                        *ngIf="clients.status == 'disabled' && clients.substatus == 'New'"
+                        [for]="clients.username">New</label>
                     </div>
                   </td>
                   <td>
-                    <!--i class="fas fa-trash" (click)="delete(clients)"></i -->
-                    <i
-                      class="fas fa-pen"
-                      style="margin-left: 15px"
-                      (click)="read(clients)"
-                      data-toggle="modal"
-                      data-target="#clients-modal"
-                    ></i>
+                    <i class="fas fa-trash" (click)="delete(clients)"></i>
+                    <i class="fas fa-pen" style="margin-left: 15px" (click)="read(clients)" data-toggle="modal"
+                      data-target="#clients-modal"></i>
+                    <i class="fas fa-dollar-sign" style="margin-left: 15px" (click)="paymentFormInit(clients)" data-toggle="modal"
+                      data-target="#payment-modal"></i>
                   </td>
                 </tr>
               </tbody>
@@ -123,7 +107,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title" *ngIf="!editPopup">Add new Client</h4>
+        <h4 class="modal-title" *ngIf="!editPopup">Add New Client</h4>
         <h4 class="modal-title" *ngIf="editPopup">Modify Client</h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -134,131 +118,113 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-12">
-                <!-- <div class="form-group">
-                  <label for="username">Nombre de Usuario</label>
-                  <input type="text" formControlName="username" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('username') }" id="username" placeholder="Nombre de Usuario" />
-                  <span id="username-error" *ngIf="errors.includes('username')" class="error invalid-feedback">{{ formError.username }}</span>
-                  <div *ngIf="this.errorClientexists === true" [ngClass]="{'error-message': errorClientexists,'is-invalid':errorClientexists}">
-                    Error: Cliente con Servicio Activo
-                  </div>
-                  <div *ngIf="this.errorClientNotexists === true"  [ngClass]="{'error-message': errorClientNotexists,'is-invalid':errorClientNotexists}">
-                    Error: Cliente no encontrado en el sistema
-                  </div>
-                </div>
+
                 <div class="form-group">
-                  <label for="password">Contraseña</label>
-                  <input type="text" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('password') }" id="password" placeholder="Contraseña" />
-                  <span id="password-error" *ngIf="errors.includes('password')" class="error invalid-feedback">{{ formError.password }}</span>
-                </div> -->
-                  <div class="form-group">
-                    <label for="account">Client</label>
-                    <input type="text" formControlName="account" class="form-control"
-                      [ngClass]="{ 'is-invalid': errors.includes('account') }" id="account" placeholder="Client" />
-                    <span id="account-error" *ngIf="errors.includes('account')" class="error invalid-feedback">{{ formError.account
-                      }}</span>
-                  </div>
+                  <label for="account">Client</label>
+                  <input type="text" formControlName="account" class="form-control"
+                    [ngClass]="{ 'is-invalid': errors.includes('account') }" id="account" placeholder="Client" />
+                  <span id="account-error" *ngIf="errors.includes('account')" class="error invalid-feedback">{{
+                    formError.account
+                    }}</span>
+                </div>
                 <div class="form-group">
                   <label for="name">Contact</label>
-                  <input type="text" formControlName="name" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('name') }"
-                    id="name" placeholder="Contact" />
-                  <span id="name-error" *ngIf="errors.includes('name')" class="error invalid-feedback">{{ formError.name }}</span>
+                  <input type="text" formControlName="name" class="form-control"
+                    [ngClass]="{ 'is-invalid': errors.includes('name') }" id="name" placeholder="Contact" />
+                  <span id="name-error" *ngIf="errors.includes('name')" class="error invalid-feedback">{{ formError.name
+                    }}</span>
                 </div>
-                <div class="form-group">
-                  <label for="email">Email</label>
-                  <input type="email" class="form-control" formControlName="email" [ngClass]="{ 'is-invalid': errors.includes('email') }" id="email" placeholder="Email" />
-                  <span id="email-error" *ngIf="errors.includes('email')" class="error invalid-feedback">{{ formError.email }}</span>
-                </div>
-                <div class="form-group">
-                      <label for="location">Location</label>
-                      <input type="text" formControlName="location" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('location') }" id="location" placeholder="Location" />
-                      <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">{{ formError.location }}</span>
               </div>
 
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-            <div class="form-group">
-              <label for="plan">Expiration day</label>
-              <select id="dueday" class="form-control" formControlName="dueday"
-                [ngClass]="{ 'is-invalid': errors.includes('dueday') }">
-                <option [ngValue]="null" disabled>Select Day</option>
-                <option *ngFor="let d of days" [ngValue]="d">{{ d }}</option>
-              </select>
-            
-              <span id="dueday-error" *ngIf="errors.includes('dueday')" class="error invalid-feedback">
-                {{ formError.plan }}
-              </span>
-            </div>
-            <!--
-                <div class="form-group">
-                  <label for="phone">Teléfono</label>
-                  <input type="phone" formControlName="phone" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('phone') }" id="phone" placeholder="Teléfono" />
-                  <span id="phone-error" *ngIf="errors.includes('phone')" class="error invalid-feedback">{{ formError.phone }}</span>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" formControlName="email"
+                      [ngClass]="{ 'is-invalid': errors.includes('email') }" id="email" placeholder="Email" />
+                    <span id="email-error" *ngIf="errors.includes('email')" class="error invalid-feedback">{{
+                      formError.email }}</span>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label for="plan">Plan</label>
-                  <select formControlName="plan" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('plan') }" id="plan">
-                    <option value="Basico">Plan Básico</option>
-                    <option value="Premium">Premium</option>
+                <div class="col-md-6">
+                  <label for="location">Location</label>
+                  <input type="text" formControlName="location" class="form-control"
+                    [ngClass]="{ 'is-invalid': errors.includes('location') }" id="location" placeholder="Location" />
+                  <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">{{
+                    formError.location }}</span>
+                </div>
+
+              </div>
+
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="plan">Cut-off day</label>
+                    <select id="dueday" class="form-control" formControlName="dueday"
+                      [ngClass]="{ 'is-invalid': errors.includes('dueday') }">
+                      <option [ngValue]="null" disabled>Select Day</option>
+                      <option *ngFor="let d of days" [ngValue]="d">{{ d }}</option>
+                    </select>
+
+                    <span id="dueday-error" *ngIf="errors.includes('dueday')" class="error invalid-feedback">
+                      {{ formError.plan }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="location">Auto Renew</label>
+                  <select id="autorenew" class="form-control" formControlName="autorenew"
+                    [ngClass]="{ 'is-invalid': errors.includes('autorenew') }">
+                    <option [ngValue]="null" disabled>Select option</option>
+                    <option value="enabled">Enabled</option>
+                    <option value="disabled">Disabled</option>
                   </select>
-                  <span id="plan-error" *ngIf="errors.includes('plan')" class="error invalid-feedback">{{ formError.plan }}</span>
-                </div> -->
+
+                  <span *ngIf="errors.includes('autorenew')" class="error invalid-feedback">
+                    {{ formError.autorenew }}
+                  </span>
+                </div>
 
               </div>
-              <div class="col-md-6">
-               
-                <!-- div class="form-group">
-                  <label for="location">Ubicación</label>
-                  <input type="text" formControlName="location" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('location') }" id="location" placeholder="Ubicación" />
-                  <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">{{ formError.location }}</span>
-                </div !-->
-                <div class="form-group">
-                  <label for="expiration">Expiration</label>
-                  <div class="input-group">
-                  <input
-                      class="form-control"
-                      placeholder="{{this.clientForm.value.expiration}}"
-                      name="expiration" 
-                      [(ngModel)]="model"
-                      ngbDatepicker
-                      #d="ngbDatepicker"
-                      id="expiration"
-                      formControlName="expiration"
-                      (dateSelect)="onDateSelect($event)"
-                    />
-                    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="unitprice">Unit Price</label>
+                    <input type="text" id="unitprice" class="form-control" formControlName="unitprice"
+                      [ngClass]="{ 'is-invalid': errors.includes('unitprice') }" placeholder="Unit Price" />
+                    <span id="unitprice-error" *ngIf="errors.includes('unitprice')" class="error invalid-feedback">
+                      {{ formError.unitprice }}
+                    </span>
                   </div>
-
-                  <!-- <div class="form-group">
-                    <label for="maxdevices">Máx. Dispositivos</label>
-                    <input type="number" formControlName="maxdevices" class="form-control"
-                      [ngClass]="{ 'is-invalid': errors.includes('maxdevices') }" id="maxdevices" placeholder="Máx. Dispositivos" />
-                    <span id="maxdevices-error" *ngIf="errors.includes('maxdevices')" class="error invalid-feedback">{{
-                      formError.maxdevices }}</span>
-                  </div> -->
                 </div>
-                <!--div class="form-group">
-                  <label for="istrial">Es Prueba</label>
-                  <div class="custom-control custom-radio">
-                    <input class="custom-control-input" formControlName="istrial" value="true" name="istrial" type="radio" id="istrial-true" />
-                    <label for="istrial-true" class="custom-control-label">Sí</label>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="currency">Currency</label>
+                    <select formControlName="currency" class="form-control" [ngClass]="{
+                                                            'is-invalid': false 
+                                                          }" id="clientid">
+                      <option value="">Select Currency</option>
+                      <option *ngFor="let c of CurrenciesList" [value]="c.code">{{ c.name }}</option>
+                    </select>
+
+
+                    <span id="extradays-error" *ngIf="errors.includes('currency')" class="error invalid-feedback">
+                      {{ formError.currency }}
+                    </span>
                   </div>
-                  <div class="custom-control custom-radio">
-                    <input class="custom-control-input" type="radio" id="istrial-false" name="istrial" formControlName="istrial" value="false" />
-                    <label for="istrial-false" class="custom-control-label">No</label>
-                  </div>
-                  <span id="istrial-error" *ngIf="errors.includes('istrial')" class="error invalid-feedback">{{ formError.istrial }}</span>
-                </div-->
+                </div>
               </div>
             </div>
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
                   <label for="obs">Obs</label>
-                  <textarea formControlName="obs" class="form-control" [ngClass]="{ 'is-invalid': errors.includes('obs') }" id="obs" placeholder="Observaciones"></textarea>
-                  <span id="obs-error" *ngIf="errors.includes('obs')" class="error invalid-feedback">{{ formError.obs }}</span>
+                  <textarea formControlName="obs" class="form-control"
+                    [ngClass]="{ 'is-invalid': errors.includes('obs') }" id="obs" placeholder="Observations"></textarea>
+                  <span id="obs-error" *ngIf="errors.includes('obs')" class="error invalid-feedback">{{ formError.obs
+                    }}</span>
                 </div>
               </div>
             </div>
@@ -266,9 +232,11 @@
         </form>
       </div>
       <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-default" #closeModal data-dismiss="modal" (click)="clearForm()">Close</button>
+        <button type="button" class="btn btn-default" #closeModal data-dismiss="modal"
+          (click)="clearForm()">Close</button>
         <button type="button" *ngIf="!editPopup" (click)="create()" class="btn btn-primary">Create</button>
-        <button type="button" *ngIf="editPopup" [disabled]="formSubmissionFlag" (click)="update()" class="btn btn-primary">
+        <button type="button" *ngIf="editPopup" [disabled]="formSubmissionFlag" (click)="update()"
+          class="btn btn-primary">
           <div class="spinner-border text-light spinner" *ngIf="formSubmissionFlag"></div>
           Save changes
         </button>
@@ -277,3 +245,103 @@
   </div>
 </div>
 
+<div class="modal fade" id="payment-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h4 class="modal-title">Add Payment</h4>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="paymentForm">
+          <div class="card-body">
+            <!-- Currency -->
+            <div class="form-group">
+              <label for="paymentcurrency">Currency</label>
+              <select id="paymentcurrency" class="form-control" formControlName="paymentcurrency"
+                [ngClass]="{ 'is-invalid': errors.includes('paymentcurrency') }">
+                <option [ngValue]="null" disabled>Select Currency</option>
+                <option *ngFor="let c of CurrenciesList" [ngValue]="c.code">
+                  {{ c.name }}
+                </option>
+              </select>
+              <span *ngIf="errors.includes('paymentcurrency')" class="invalid-feedback">
+                {{ formError.paymentcurrency }}
+              </span>
+            </div>
+            <!-- Amount -->
+            <div class="form-group">
+              <label for="paymentamount">Amount</label>
+              <input type="number" id="paymentamount" class="form-control" formControlName="paymentamount"
+                placeholder="Payment Amount" [ngClass]="{ 'is-invalid': errors.includes('paymentamount') }" />
+              <span *ngIf="errors.includes('paymentamount')" class="invalid-feedback">
+                {{ formError.paymentamount }}
+              </span>
+            </div>
+            <!--Partial Payment -->
+            <div class="form-group">
+              <label for="paymentpartial">Partial Payment</label>
+              <select id="paymentpartial" class="form-control" formControlName="paymentpartial"
+                [ngClass]="{ 'is-invalid': errors.includes('paymentpartial') }">
+
+                <option [ngValue]="null" disabled>Select an option</option>
+                <option [ngValue]="true">Yes</option>
+                <option [ngValue]="false">No</option>
+              </select>
+
+              <span *ngIf="errors.includes('paymentpartial')" class="invalid-feedback">
+                {{ formError.paymentpartial }}
+              </span>
+            </div>
+            <!-- Due Date -->
+            <div class="form-group">
+              <label for="duedate">Due Date</label>
+              <input type="date" id="duedate" class="form-control" formControlName="duedate" 
+              [ngClass]="{ 'is-invalid': errors.includes('paymentdate') }" />
+              <span *ngIf="errors.includes('duedate')" class="invalid-feedback">
+                {{ formError.duedate }}
+              </span>
+            </div>
+
+            <!-- Period -->
+            <div class="form-group">
+              <label for="period">Period</label>
+              <input type="text" id="period" class="form-control" formControlName="period" readonly
+                [ngClass]="{ 'is-invalid': errors.includes('period') }" />
+
+              <span *ngIf="errors.includes('period')" class="invalid-feedback">
+                {{ formError.period }}
+              </span>
+            </div>
+            <!-- Payment Date -->
+            <div class="form-group">
+              <label for="paymentdate">Payment Date</label>
+              <input type="date" id="paymentdate" class="form-control" formControlName="paymentdate"
+                 [ngClass]="{ 'is-invalid': errors.includes('paymentdate') }"
+                readonly />
+              <span *ngIf="errors.includes('paymentdate')" class="invalid-feedback">
+                {{ formError.paymentdate }}
+              </span>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clearPaymentForm()">
+          Close
+        </button>
+        {{errors}}
+        <button type="button" class="btn btn-primary" [disabled]="paymentForm.invalid" (click)="createPayment()">
+          Add Payment
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef} from '@angular/core';
-import { FormGroup, FormControl, Validators,FormsModule  } from '@angular/forms';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ViewContainerRef } from '@angular/core';
 import Swal from 'sweetalert2';
-import {  NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmationComponent } from '../../../app/core/shared/components/confirmation/confirmation.component';
 import { RolesService } from '../../../app/core/shared/services/roles.service';
@@ -11,6 +11,7 @@ import { ClientsService } from './clients.service';
 import { DevicesService } from '../devices/devices.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ActivatedRoute, TitleStrategy } from '@angular/router';
+import { CurrencyPipe } from '@angular/common';
 
 
 @Component({
@@ -21,27 +22,33 @@ import { ActivatedRoute, TitleStrategy } from '@angular/router';
 export class ClientsComponent implements OnInit {
   @ViewChild('closeModal') closeModal: ElementRef;
   model: NgbDateStruct;
-  
-  dtOptions: DataTables.Settings = {};
+
+  dtOptions: DataTables.Settings = {
+    responsive: true,
+    columnDefs: [
+      { targets: [4, 5, 6],  className: 'd-none d-lg-table-cell' },
+      { targets: [7, 8, 9],  className: 'd-none d-lg-table-cell' }
+    ] as any
+  };
   selectedRoles: any = [];
   closeResult: string;
   clientInfo: any;
   clientForm: any;
   allClients: any = [];
   clientRoles: any = [];
-  statusList: any = ['enabled','disabled'];
-  planList:any = [{id:'Basico',name:'Basico'}]
-  userRoles : any = [];
-  clientFilters:string='';
+  statusList: any = ['enabled', 'disabled'];
+  planList: any = [{ id: 'Basic', name: 'Basic' }]
+  userRoles: any = [];
+  clientFilters: string = '';
   errors: any = [];
   formError: any = {};
   tableColumns: [
     'Id',
-    'Nombre de Usuario',
-    'Correo Electrónico',
-    'Teléfono',
-    'Estado',
-    'Acciones'
+    'Username',
+    'Email',
+    'Phone',
+    'Status',
+    'Actions'
   ];
   message: string;
   imagePath: any;
@@ -55,7 +62,17 @@ export class ClientsComponent implements OnInit {
   formSubmissionFlag: boolean = false;
   errorClientexists: boolean = false;
   errorClientNotexists: boolean = false;
+  Params: any = {};
   days: number[] = Array.from({ length: 30 }, (_, i) => i + 1);
+  CurrenciesList: any = [
+    { code: 'USD', name: 'US Dollar' },
+    { code: 'ARS', name: 'Argentinian Peso' }];
+
+  paymentForm: FormGroup;
+  minDate: string;
+  maxDate: string;
+  minPartialDate: string;
+  maxPartialDate: string;
 
   constructor(
     private roleService: RolesService,
@@ -64,7 +81,8 @@ export class ClientsComponent implements OnInit {
     private clientsService: ClientsService,
     private devicesService: DevicesService,
     private viewContainer: ViewContainerRef,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder
   ) {
     //this.clientInfo = JSON.parse(localStorage.getItem('clientInfo'));
 
@@ -73,19 +91,29 @@ export class ClientsComponent implements OnInit {
   ngOnInit(): void {
     this.getClientList();
     this.getClientRoleList();
+    this.getParameters();
     this.setForm();
+    this.paymentFormGroupInit();
   }
-async getStatusList() {
+  async getStatusList() {
     this.statusList = [];
-}
+  }
 
   async getClientList() {
-  
-     this.clientsService.getClientsinfo(this.clientFilters).then((data:any)=>{ //getchannelsinfo
+
+    this.clientsService.getClientsinfo(this.clientFilters).then((data: any) => { //getchannelsinfo
       console.log(data)
-       this.allClients = data;
+      this.allClients = data;
     });
   }
+  async getParameters() {
+
+    this.clientsService.getParameters().then((data: any) => { //getchannelsinfo
+      console.log(data)
+      this.Params = data;
+    });
+  }
+
 
   async getClientRoleList() {
     this.clientRoles = [];
@@ -95,44 +123,44 @@ async getStatusList() {
   }
 
 
-async  getNextMonthDate() {
-  return new Promise(async (resolve, reject) => { 
-    let date = new Date();
+  async getNextMonthDate() {
+    return new Promise(async (resolve, reject) => {
+      let date = new Date();
 
-    // Obtener el día, mes y año actual
-    let day = date.getDate();
-    let month = date.getMonth() + 1; // Los meses son de 0 a 11, sumamos 1
-    let year = date.getFullYear();
+      // Obtener el día, mes y año actual
+      let day = date.getDate();
+      let month = date.getMonth() + 1; // Los meses son de 0 a 11, sumamos 1
+      let year = date.getFullYear();
 
-    // Incrementar el mes en 1
-    month += 1;
+      // Incrementar el mes en 1
+      month += 1;
 
-    // Si el mes es mayor a 12, ajustar el año y el mes
-    if (month > 12) {
-      month = 1;
-      year += 1;
-    }
+      // Si el mes es mayor a 12, ajustar el año y el mes
+      if (month > 12) {
+        month = 1;
+        year += 1;
+      }
 
-    // Asegurar que el día es válido para el nuevo mes
-    const daysInMonth = new Date(year, month, 0).getDate();
-    if (day > daysInMonth) {
-      day = daysInMonth;
-    }
+      // Asegurar que el día es válido para el nuevo mes
+      const daysInMonth = new Date(year, month, 0).getDate();
+      if (day > daysInMonth) {
+        day = daysInMonth;
+      }
 
-    // Formatear el día y el mes para que siempre tengan dos dígitos
-    let sday = day < 10 ? `0${day}`: day.toString();
-    let smonth = month < 10 ? '0' + month : month;
+      // Formatear el día y el mes para que siempre tengan dos dígitos
+      let sday = day < 10 ? `0${day}` : day.toString();
+      let smonth = month < 10 ? '0' + month : month;
 
-    // Formatear la fecha en dd/mm/yyyy
-    resolve(`${year}-${smonth}-${sday}`);
-  });
-  
-}
+      // Formatear la fecha en dd/mm/yyyy
+      resolve(`${year}-${smonth}-${sday}`);
+    });
+
+  }
 
   async setForm() {
-    console.log(`this.getNextMonthDate()`);
-    console.log(this.getNextMonthDate());
-    
+    //console.log(`this.getNextMonthDate()`);
+    //console.log(this.getNextMonthDate());
+    console.log(`Params on setForm: `, this.Params);
     this.clientForm = new FormGroup({
       clientid: new FormControl(0),
       tenantid: new FormControl('Local', [Validators.required]),
@@ -145,9 +173,16 @@ async  getNextMonthDate() {
       email: new FormControl(''),
       phone: new FormControl(''),
       location: new FormControl(''),
-      status: new FormControl('enabled'),
+      autorenew: new FormControl(this.Params.autorenew || 'disabled'),
+      status: new FormControl('disabled'),
+      substatus: new FormControl('New'),
+      currency: new FormControl(this.Params.currency || 'ARS'),
       maxdevices: new FormControl(1, [Validators.required]),
-      dueday: new FormControl(''),
+      dueday: new FormControl(Number.parseInt(this.Params.dueday) || 15, [Validators.required]),
+      extradays: new FormControl(Number.parseInt(this.Params.extradays) || 0, [Validators.required]),
+      unitprice: new FormControl(this.Params.unitprice || 0, [Validators.required]),
+      totaldevices: new FormControl(''),
+      totalprice: new FormControl(''),
       obs: new FormControl(''),
       istrial: new FormControl(false, [Validators.required]),
       expiration: new FormControl(await this.getNextMonthDate(), [Validators.required])
@@ -168,13 +203,13 @@ async  getNextMonthDate() {
 
   verificarUsername(valor: string): void {
     // Lógica de verificación para el nombre de usuario
-    
+
     let tenantid = localStorage.getItem('tenantid');
     if (tenantid === 'server23' || tenantid === 'server7') {
       console.log('Verificando el nombre de usuario:', valor);
       this.errorClientexists = false;
       this.errorClientNotexists = false;
-      this.clientsService.getnewUserExists(valor).then((data:any)=>{
+      this.clientsService.getnewUserExists(valor).then((data: any) => {
 
         //this.clientForm.get('username')
         //this.accountrm.get('username')
@@ -186,9 +221,10 @@ async  getNextMonthDate() {
         this.clientForm.patchValue({ 'password': data.password });
         this.clientForm.patchValue({ 'email': data.email });
         this.clientForm.patchValue({ 'phone': data.phone });
+
         //this.clientForm.patchValue({ 'expiration': newdate });
         console.log(data);
-      }).catch((ex:any)=>{
+      }).catch((ex: any) => {
         console.log(`DATA ERROR ON REQUEST CLIENTEXISTS`)
         console.log(ex.error);
         if (ex.error.status === 406) {
@@ -196,7 +232,7 @@ async  getNextMonthDate() {
           console.log(ex.error.status === 406)
           this.errorClientexists = true;
         }
-        
+
         else if (ex.error.status === 404) {
           this.errorClientNotexists = true;
         }
@@ -216,7 +252,7 @@ async  getNextMonthDate() {
 
     this.clientForm.patchValue({ 'status': item.status });
     this.clientForm.patchValue(item);
-    this.clientsService.clientUpdateStatus (item.clientid,item.status).then((data: any) => {
+    this.clientsService.clientUpdateStatus(item.clientid, item.status, item.substatus).then((data: any) => {
       this.getClientList();
       this.cdr.detectChanges();
       this.formSubmissionFlag = false;
@@ -242,16 +278,16 @@ async  getNextMonthDate() {
   }
 
 
- public onDateSelect(event: any) {
+  public onDateSelect(event: any) {
     console.log(event);
-    if (event.NgbDate !== undefined ) {
+    if (event.NgbDate !== undefined) {
       let newdate = `${event.NgbDate.day}/${event.NgbDate.month}/${event.NgbDate.year}`;
       this.clientForm.value.expiration = newdate
-      this.model= event.NgbDate;
+      this.model = event.NgbDate;
     }
   }
 
-  getExpirationFromModel(expiration):string {
+  getExpirationFromModel(expiration): string {
     console.log(expiration);
 
     if (this.model !== undefined && this.model.year !== undefined) {
@@ -280,11 +316,18 @@ async  getNextMonthDate() {
     formData.append('location', this.clientForm.value.location);
     formData.append('maxdevices', this.clientForm.value.maxdevices);
     formData.append('status', this.clientForm.value.status);
+    formData.append('substatus', this.clientForm.value.substatus);
+    formData.append('autorenew', this.clientForm.value.autorenew);
+    formData.append('currency', this.clientForm.value.currency);
     formData.append('obs', this.clientForm.value.obs);
     formData.append('istrial', this.clientForm.value.istrial);
-    formData.append('expiration',expiration );
+    formData.append('expiration', expiration);
     formData.append('dueday', this.clientForm.value.dueday);
-     this.clientsService.clientAdd(this.formDataToJson(formData)).then((data:any)=>{ 
+    formData.append('extradays', this.clientForm.value.extradays);
+    formData.append('unitprice', this.clientForm.value.unitprice);
+    formData.append('totaldevices', this.clientForm.value.totaldevices);
+    formData.append('totalprice', this.clientForm.value.totalprice);
+    this.clientsService.clientAdd(this.formDataToJson(formData)).then((data: any) => {
       this.getClientList();
       this.cdr.detectChanges();
       this.clientForm.reset();
@@ -292,12 +335,12 @@ async  getNextMonthDate() {
       this.formSubmissionFlag = false;
       Swal.fire({
         title: '',
-        text: 'Cliente creado',
+        text: 'Client created',
         icon: 'success',
         confirmButtonText: 'Close'
       });
-      
-    }).catch((err:any)=>{
+
+    }).catch((err: any) => {
       Swal.fire({
         title: '',
         text: 'Error: ' + err.errmessage,
@@ -309,13 +352,13 @@ async  getNextMonthDate() {
     });
 
   }
- formDataToJson(formData: FormData): any {
-  const json = {};
-  formData.forEach((value, key) => {
-    json[key] = value;
-  });
-  return json;
-}
+  formDataToJson(formData: FormData): any {
+    const json = {};
+    formData.forEach((value, key) => {
+      json[key] = value;
+    });
+    return json;
+  }
 
   read(i: any) {
     this.clientForm.patchValue(i);
@@ -343,9 +386,17 @@ async  getNextMonthDate() {
     formData.append('maxdevices', this.clientForm.value.maxdevices);
     formData.append('obs', this.clientForm.value.obs);
     formData.append('status', this.clientForm.value.status);
+    formData.append('substatus', this.clientForm.value.substatus);
+    formData.append('autorenew', this.clientForm.value.autorenew);
+    formData.append('currency', this.clientForm.value.currency);
     formData.append('istrial', this.clientForm.value.istrial);
     formData.append('expiration', expiration);
-    this.clientsService.clientUpdate(this.formDataToJson(formData)).then((data:any)=>{ 
+    formData.append('dueday', this.clientForm.value.dueday);
+    formData.append('extradays', this.clientForm.value.extradays);
+    formData.append('unitprice', this.clientForm.value.unitprice);
+    formData.append('totaldevices', this.clientForm.value.totaldevices);
+    formData.append('totalprice', this.clientForm.value.totalprice);
+    this.clientsService.clientUpdate(this.formDataToJson(formData)).then((data: any) => {
       this.getClientList();
       this.cdr.detectChanges();
       this.formSubmissionFlag = false;
@@ -356,8 +407,8 @@ async  getNextMonthDate() {
         icon: 'success',
         confirmButtonText: 'Close'
       });
-      
-    }).catch((err:any)=>{
+
+    }).catch((err: any) => {
       this.closeModal.nativeElement.click();
       this.formSubmissionFlag = false;
       Swal.fire({
@@ -376,17 +427,17 @@ async  getNextMonthDate() {
     dialogRef.instance.visible = true;
     dialogRef.instance.action.subscribe(x => {
       if (x) {
-        let client = {clientid:i.clientid}
-        this.clientsService.clientDelete(client).then((data:any)=>{ 
+        let client = { clientid: i.clientid }
+        this.clientsService.clientDelete(client).then((data: any) => {
           this.getClientList();
           this.cdr.detectChanges();
           dialogRef.instance.visible = false;
-                  Swal.fire({
-                    title: '',
-                    text: 'Client Deleted Successfully',
-                    icon: 'success',
-                    confirmButtonText: 'Close'
-                  });
+          Swal.fire({
+            title: '',
+            text: 'Client Deleted Successfully',
+            icon: 'success',
+            confirmButtonText: 'Close'
+          });
         }).catch((err: any) => {
           this.closeModal.nativeElement.click();
           this.formSubmissionFlag = false;
@@ -396,28 +447,135 @@ async  getNextMonthDate() {
             icon: 'error',
             confirmButtonText: 'Close'
           });
-        
-      });
-    }
-  });
-}
+
+        });
+      }
+    });
+  }
 
   validForm() {
     this.errors = [];
     this.formError = {};
     let validFlag = true;
-/*     if (!this.clientForm.value.email) {
-      this.errors.push('email');
-      this.formError.errorForEmail = 'Correo Electrónico es requerido';
-      validFlag = false;
-    } */
+    /*     if (!this.clientForm.value.email) {
+          this.errors.push('email');
+          this.formError.errorForEmail = 'Correo Electrónico es requerido';
+          validFlag = false;
+        } */
     validFlag = !(this.errorClientexists || this.errorClientNotexists);
     console.log(`Valid flag: ${validFlag}`)
-/*     if (!this.clientForm.value.password) {
-      this.errors.push('password');
-      this.formError.errorForPassword = 'Contraseña es requerida';
-      validFlag = false;
-    } */
+    /*     if (!this.clientForm.value.password) {
+          this.errors.push('password');
+          this.formError.errorForPassword = 'Contraseña es requerida';
+          validFlag = false;
+        } */
     return validFlag;
   }
+
+
+
+  paymentFormGroupInit() {
+    const today = new Date();
+    const min = new Date();
+    min.setMonth(today.getMonth() - 1);
+
+    const max = new Date();
+    max.setDate(today.getDate() + 2);
+
+    //this.minDate = min.toISOString().split('T')[0];
+    //this.maxDate = max.toISOString().split('T')[0];
+
+    const minpartial = new Date();
+    minpartial.setMonth(today.getMonth() - 1);
+
+    const maxpartial = new Date();
+    maxpartial.setDate(today.getMonth() + 1);
+
+    //this.minPartialDate = minpartial.toISOString().split('T')[0];
+    //this.maxPartialDate = maxpartial.toISOString().split('T')[0];
+
+    this.paymentForm = this.fb.group({
+      paymentamount: [0, [Validators.required, Validators.min(0.01)]],
+      paymentcurrency: ['USD', Validators.required],
+      paymentdate: [today.toISOString().split('T')[0], Validators.required],
+      duedate: ['', Validators.required],
+      period: ['', Validators.required],
+      lastperiod: ['', Validators.required],
+      startdate: ['', Validators.required],
+      paymentpartial: ['', Validators.required],
+      clientid: ['', Validators.required],
+    });
+
+  }
+  paymentFormInit(clients: any) {
+    const today = new Date();
+    this.paymentForm.get('paymentamount')?.setValue(clients.totalprice);
+    this.paymentForm.get('paymentcurrency')?.setValue(clients.currency);
+    this.paymentForm.get('paymentdate')?.setValue(today.toISOString().split('T')[0]); 
+    this.paymentForm.get('duedate')?.setValue(clients.duepreview.duedate);
+    this.paymentForm.get('period')?.setValue(clients.duepreview.period);
+    this.paymentForm.get('lastperiod')?.setValue(clients.duepreview.lastperiod);
+    this.paymentForm.get('startdate')?.setValue(clients.duepreview.startdate);
+    this.paymentForm.get('paymentpartial')?.setValue(clients.duepreview.paymentpartial);
+    this.paymentForm.get('clientid')?.setValue(clients.clientid); 
+    this.paymentForm.get('paymentpartial')?.valueChanges.subscribe(
+      (isPartial: boolean) => {
+        if (isPartial === true) {
+          // Partial Payment = YES
+          if (clients.duepreview.lastperiod !== undefined)
+            this.paymentForm.get('period')?.setValue(clients.duepreview.lastperiod);
+          else
+            this.paymentForm.get('period')?.setValue(clients.duepreview.period);
+        } else if (isPartial === false) {
+          // Partial Payment = NO
+          this.paymentForm.get('period')?.setValue(clients.duepreview.period);
+        }
+      }
+    );
+  }
+
+  clearPaymentForm() {
+    this.paymentForm.reset();
+  }
+  createPayment() {
+    this.formSubmissionFlag = true;
+    let data = {
+      paymentdate: this.paymentForm.get('paymentdate').value,
+      paymentamount: this.paymentForm.get('paymentamount').value,
+      paymentcurrency: this.paymentForm.get('paymentcurrency').value,
+      duedate: this.paymentForm.get('duedate').value,
+      period: this.paymentForm.get('period').value,
+      lastperiod: this.paymentForm.get('lastperiod').value,
+      startdate: this.paymentForm.get('startdate').value,
+      paymentpartial: this.paymentForm.get('paymentpartial').value,
+      clientid: this.paymentForm.get('clientid').value,
+    };
+    console.log('Payment Data: ', data);
+    this.clientsService.createPayment(data).then(async (res: any) => {
+      await this.closeModal.nativeElement.click();
+      this.formSubmissionFlag = false;
+      this.getClientList();
+      this.cdr.detectChanges();
+      await Swal.fire({
+        title: '',
+        text: 'Payment Successfully Added',
+        icon: 'success',
+        confirmButtonText: 'Close'
+      });
+
+    }).catch((err: any) => {
+      this.closeModal.nativeElement.click();
+      this.formSubmissionFlag = false;
+      console.log('Error en Update payment: : ', err);
+      this.getClientList();
+      Swal.fire({
+        title: '',
+        text: 'Error: ' + err.errmessage,
+        icon: 'error',
+        confirmButtonText: 'Close'
+      });
+    })
+
+  }
+
 }

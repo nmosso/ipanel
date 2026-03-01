@@ -26,6 +26,7 @@ const routes: Routes = [
       { path: 'users', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule) },
       { path: 'clients', loadChildren: () => import('./components/clients/clients.module').then(m => m.ClientsModule) },
       { path: 'devices', loadChildren: () => import('./components/devices/devices.module').then(m => m.DevicesModule) },
+      { path: 'credits', loadChildren: () => import('./components/credits/credits.module').then(m => m.CreditsModule) },
       { path: 'devices/:clientid', loadChildren: () => import('./components/devices/devices.module').then(m => m.DevicesModule) },
       { path: 'resellers', loadChildren: () => import('./components/tenants/tenant.module').then(m => m.TenantModule) },
       { path: 'params', loadChildren: () => import('./components/parameters/parameter.module').then(m => m.ParameterModule) },

@@ -24,6 +24,40 @@
   <!-- Main content -->
   <section class="content">
     <div class="container-fluid">
+      <table class="table table-bordered text-center" *ngIf="adminrole?.includes(role)" >
+        <thead>
+          <tr>
+            <th>Cardserver</th>
+            <th *ngFor="let feeder of feeders">
+              {{ feeder.astraserverid }}
+            </th>
+          </tr>
+        </thead>
+      
+        <tbody>
+          <tr *ngFor="let cs of cardservers">
+            <td class="fw-bold">
+              {{ cs }}
+            </td>
+      
+            <td *ngFor="let feeder of feeders" [ngClass]="getStateClass(feeder, cs)">
+      
+              <div class="d-flex justify-content-center align-items-center gap-2">
+      
+                <input type="radio" [name]="'group-' + cs" [value]="feeder.astraserverid" [checked]="isEnabled(feeder, cs)"
+                  (change)="onSelect(feeder.astraserverid, cs)" />
+      
+                <span>
+                  {{ getState(feeder, cs) }}
+                </span>
+      
+              </div>
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
       <!-- Small boxes (Stat box) -->
       <div class="row" *ngIf="!adminrole?.includes(role)">
         <div class="col-lg-3 col-6">
@@ -37,7 +71,7 @@
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -52,7 +86,7 @@
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -67,7 +101,7 @@
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">MOre info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">MOre info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -82,7 +116,7 @@
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -99,7 +133,7 @@
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -114,7 +148,7 @@
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -122,14 +156,14 @@
           <!-- small box -->
           <div class="small-box bg-warning">
             <div class="inner">
-              <h3> </h3>
-
-              <p>---</p>
+              <h3>{{credits}}</h3>
+              
+              <p>Credits used this month</p>
             </div>
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -137,14 +171,14 @@
           <!-- small box -->
           <div class="small-box bg-danger">
             <div class="inner">
-              <h3> </h3>
+              <h3>00 </h3>
 
-              <p>---</p>
+              <p>Credits Available</p>
             </div>
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
           </div>
         </div>
         <!-- ./col -->
@@ -162,7 +196,7 @@
         <div class="card-body table-responsive p-0">
           <div class="row">
             <!-- Cardserver -->
-            <div class="col-sm-3">
+            <div class="col-sm-4">
               <div class="form-group" [formGroup]="deviceForm"  >
 
 
@@ -182,7 +216,7 @@
             </div>
 
             <!-- Cardreader -->
-            <div class="col-sm-3">
+            <div class="col-sm-4">
               <div class="form-group" [formGroup]="deviceForm">
 
 
@@ -201,7 +235,7 @@
               </div>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-4">
             </div>
           </div>
         </div>

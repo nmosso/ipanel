@@ -8,8 +8,14 @@ export const navItems: any[] = [
   {
     name: 'Clients',
     url: '/clients',
-    auth: ['tenant', 'admin', 'superadmin'],
+    auth: ['tenant', 'superadmin'],
     iconComponent: { name: 'nav-icon fas fa-regular fa-user'}
+  },
+  {
+    name: 'Resellers',
+    url: '/resellers',
+    auth: ['superadmin', 'admin'],
+    iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
   },
   {
     name: 'Stock',
@@ -18,21 +24,15 @@ export const navItems: any[] = [
     iconComponent: { name: 'nav-icon fas fa-regular fa-tv' }
   },
   {
-    name: 'Resellers',
-    url: '/resellers',
-    auth: ['superadmin','admin'],
-    iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
+    name: 'Credits',
+    url: '/credits',
+    auth: ['tenant', 'admin', 'superadmin'],
+    iconComponent: { name: 'nav-icon fas fa-regular fa-dollar-sign' }
   },
   {
     name: 'Parameters',
     url: '/params',
     auth: ['tenant', 'superadmin', 'admin'],
-    iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
-  },
-  {
-    name: 'SuperAdmin',
-    url: '/videos',
-    auth: ['superadmin'],
     iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
   },
   {

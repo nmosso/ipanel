@@ -12,6 +12,7 @@ import { DevicesService } from './devices.service';
 import { ActivatedRoute, TitleStrategy } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap, map, catchError, of, filter, tap } from 'rxjs';
 import { Device } from './devices-model';
+import { DataTableDirective } from 'angular-datatables';
 
 @Component({
   selector: 'app-client',
@@ -20,6 +21,9 @@ import { Device } from './devices-model';
 })
 export class DevicesComponent implements OnInit {
   @ViewChild('closeModal') closeModal: ElementRef;
+  @ViewChild(DataTableDirective, { static: false })
+  dtElement!: DataTableDirective;
+
   model: NgbDateStruct;
   
   dtOptions: DataTables.Settings = {};
@@ -29,12 +33,14 @@ export class DevicesComponent implements OnInit {
   deviceForm: any;
   allDevices: Device[] = [];
   allFilteredDevices: Device[] = [];
-
+  role: string = '';
+  
   allClients:any = [];
+  allTenants:any = [];
   clientRoles: any = [];
   allBrands: any = [];
   statusList: any = ['enabled','disabled'];
-  planList:any = [{id:'Basico',name:'Basico'}]
+  planList:any = [{id:'Basic',name:'Basic'}]
   userRoles : any = [];
   clientFilters:string='';
   errors: any = [];
@@ -73,7 +79,7 @@ export class DevicesComponent implements OnInit {
   allDevicesInfo: boolean = false;
 
   intervalId!: number;
-
+  selectedDevices: any[] = [];
 
   constructor(
      private zone: NgZone,
@@ -83,11 +89,70 @@ export class DevicesComponent implements OnInit {
     private viewContainer: ViewContainerRef,
     private cdr: ChangeDetectorRef
   ) {
-    //this.clientInfo = JSON.parse(localStorage.getItem('clientInfo'));
+    this.role = localStorage.getItem('role');
+    console.log(`Role: ${this.role}`);
 
   }
 
 
+  toggleSelection(device: any, event: any) {
+    if (event.target.checked) {
+      this.selectedDevices.push(device);
+    } else {
+      this.selectedDevices = this.selectedDevices.filter(
+        d => d.deviceid !== device.deviceid
+      );
+    }
+  }
+
+  isSelected(device: any): boolean {
+    return this.selectedDevices.some(d => d.deviceid === device.deviceid);
+  }
+  toggleAll(event: any) {
+    if (event.target.checked) {
+      this.selectedDevices = [...this.allFilteredDevices];
+    } else {
+      this.selectedDevices = [];
+    }
+  }
+  toggleAllVisible(event: any) {
+    this.dtElement.dtInstance.then((dtInstance: any) => {
+
+      const visibleRows = dtInstance
+        .rows({ search: 'applied', page: 'current' })
+        .data()
+        .toArray();
+
+      if (event.target.checked) {
+        visibleRows.forEach((device: any) => {
+          if (!this.selectedDevices.some(d => d.deviceid === device.deviceid)) {
+            this.selectedDevices.push(device);
+          }
+        });
+      } else {
+        this.selectedDevices = this.selectedDevices.filter(
+          selected =>
+            !visibleRows.some(v => v.deviceid === selected.deviceid)
+        );
+      }
+
+    });
+  }
+  isAllSelected(): boolean {
+    return this.selectedDevices.length === this.allFilteredDevices.length
+      && this.allFilteredDevices.length > 0;
+  }
+  bulkDisable() {
+    const ids = this.selectedDevices.map(d => d.deviceid);
+
+    console.log('Procesando:', ids);
+
+    // Llamada a tu servicio backend
+    // this.deviceService.bulkDisable(ids).subscribe(...)
+
+    // Opcional: limpiar selección luego
+    this.selectedDevices = [];
+  }
 
   ngOnDestroy() {
     window.clearInterval(this.intervalId);
@@ -107,9 +172,11 @@ export class DevicesComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.role = localStorage.getItem('role');
     this.getDevicesList();
     this.getBrandsList();
     this.getClientList();
+    this.getTenantsList();
     this.setForm();
   }
 async getStatusList() {
@@ -122,13 +189,13 @@ async getStatusList() {
       this.getDevicesByClientId(this.clientid);
       this.getClientbyClientId(this.clientid);
       this.intervalId = window.setInterval(() => this.getDevicesByClientId(this.clientid), this._interval); // cada n seg
-      //this.cdr.markForCheck();
+      this.cdr.markForCheck();
     } else {
       this.clientid = null;
       console.log(`All Channels`)
       this.getDevices();
       window.clearInterval(this.intervalId);
-      //this.cdr.markForCheck();
+      this.cdr.markForCheck();
     }
   }
   async getDevices() {
@@ -251,6 +318,14 @@ async getStatusList() {
   }
 
 
+  async getTenantsList() {
+
+    this.devicesService.getTenantsinfo(this.clientFilters).then((data: any) => { //getchannelsinfo
+      console.log(data)
+      this.allTenants = data;
+    });
+  }
+
   async getBrandsList() {
     this.devicesService.getBrandList(this.clientFilters).then((data: any) => { //getchannelsinfo
       console.log(data)
@@ -332,7 +407,7 @@ async  getNextMonthDate() {
     this.deviceForm = new FormGroup({
       deviceid: new FormControl(0),
       tenantid: new FormControl('tenant2', [Validators.required]),
-      clientid: new FormControl('', [Validators.required]),
+      clientid: new FormControl(''),
       brand: new FormControl('', [Validators.required]),
       barcode: new FormControl('', [Validators.required]),
       username: new FormControl('', [Validators.required]),
@@ -554,7 +629,7 @@ async  getNextMonthDate() {
     dialogRef.instance.action.subscribe(x => {
       if (x) {
         let device = { deviceid:i.deviceid, clientid:i.clientid };
-        this.devicesService.devicesDelete(device).then((data:any)=>{ 
+        this.devicesService.devicesUnassign(device).then((data:any)=>{ 
           this.getDevicesList();
           this.cdr.detectChanges();
           dialogRef.instance.visible = false;
