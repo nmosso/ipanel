@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DevicesRoutingModule } from './devices-routing.module';
-import { DevicesComponent } from './devices.component';
+import { StockRoutingModule } from './stock-routing.module';
+import { StockComponent } from './stock.component';
 import { SharedAppModule } from '../../core/shared/shared.module';
 
 import { FormsModule } from '@angular/forms';
@@ -9,14 +9,15 @@ import { NgbAlertModule, NgbDatepickerModule, NgbDateStruct, NgbDateParserFormat
 import { JsonPipe } from '@angular/common';
 @NgModule({
   declarations: [
-    DevicesComponent
+    StockComponent
   ],
   imports: [
     CommonModule,
-    DevicesRoutingModule,
+    StockRoutingModule,
     SharedAppModule,
     NgbDatepickerModule, NgbAlertModule, FormsModule, JsonPipe
   ],
   providers: [],
 })
-export class DevicesModule { }
+export class StockModule { }
+

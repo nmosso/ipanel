@@ -12,9 +12,9 @@ export class SocketService {
   private socket: any;
   userInfo: any;
   constructor() {
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
     if(this.userInfo){
-      this.url = `${environment.api}?companyId=${this.userInfo.companyId}&token=${localStorage.getItem('token')}`;
+      this.url = `${environment.api}?companyId=${this.userInfo.companyId}&token=${sessionStorage.getItem('token')}`;
       this.socket = io(this.url);
     }
 

@@ -25,7 +25,7 @@ export class CheckPermissionsDirective implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    let userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    let userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
     // Fetch All user Permissions and verify user have access or not
     if (!!userInfo && this.permissionService.checkPermissionForDirective(userInfo, this.appCheckPermissions)) {
       this.viewContainer.createEmbeddedView(this.templateRef);

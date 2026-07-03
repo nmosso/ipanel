@@ -120,6 +120,22 @@ export class EmmService {
 
     });
   }
+  async getTenantStats() {
+    return new Promise(async (resolve, reject) => {
+
+      let endPoint = `/v3/tenant/mastertenantstats`; //&from=${from.toISOString()}&to=${to.toISOString()}&bucket=${bucket}
+      this.http.requestCall(endPoint, ApiMethod.GET).then((data: any) => { //getchannelsinfo
+        //console.log(data);
+        console.log(`Stats data received`);
+        resolve(data) //     
+      }).catch((err) => {
+        console.log(`Catched`);
+        console.log(err);
+        reject(err.error);
+      });
+
+    });
+  }
 
   async getEmmChartStats(cardserverid: string = null, emmtype: string = 'shared'): Promise<EmmResponse> {
     return new Promise(async (resolve, reject) => {

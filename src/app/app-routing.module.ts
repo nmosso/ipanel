@@ -18,7 +18,7 @@ const routes: Routes = [
   {
     path: '',
     component: DefaultLayoutComponent,
-     canActivate: [authGuard],
+    canActivate: [authGuard],
     data: {
       title: 'Inicio'
     },
@@ -26,11 +26,13 @@ const routes: Routes = [
       { path: 'users', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule) },
       { path: 'clients', loadChildren: () => import('./components/clients/clients.module').then(m => m.ClientsModule) },
       { path: 'devices', loadChildren: () => import('./components/devices/devices.module').then(m => m.DevicesModule) },
+      { path: 'stock', loadChildren: () => import('./components/stock/stock.module').then(m => m.StockModule) },
       { path: 'credits', loadChildren: () => import('./components/credits/credits.module').then(m => m.CreditsModule) },
       { path: 'devices/:clientid', loadChildren: () => import('./components/devices/devices.module').then(m => m.DevicesModule) },
       { path: 'resellers', loadChildren: () => import('./components/tenants/tenant.module').then(m => m.TenantModule) },
       { path: 'params', loadChildren: () => import('./components/parameters/parameter.module').then(m => m.ParameterModule) },
-      { path: 'logout', loadChildren: () => import('./modules/auth/services/auth.service').then(m => m.AuthService) },  
+      { path: 'brands', loadChildren: () => import('./components/brands/brands.module').then(m => m.BrandsModule) },
+      { path: 'logout', loadChildren: () => import('./modules/auth/services/auth.service').then(m => m.AuthService) },
 
     ]
   },
@@ -49,7 +51,7 @@ const routes: Routes = [
     data: {
       title: 'Login Page'
     }
-   },
+  },
   {
     path: 'register',
     component: RegisterComponent,
@@ -64,7 +66,7 @@ const routes: Routes = [
       title: 'Reset Password Page'
     }
   },
-  {path: '**', redirectTo: 'dashboard'}
+  { path: '**', redirectTo: 'dashboard' }
 ];
 
 @NgModule({

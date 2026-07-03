@@ -26,44 +26,65 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Reseller Table</h3>
-            <button
-              type="button"
-              data-toggle="modal"
-              data-target="#user-modal"
-              class="card-title btn btn-primary"
-              style="float: right"
-              class="btn btn-primary"
-              (click)="adduser()"
-            >
-              Create User
-            </button>
+            <div class="float-right btn-group">
+              <button
+                type="button"
+                data-toggle="modal"
+                data-target="#user-modal"
+                class="btn btn-primary mr-2"
+                (click)="adduser()"
+              >
+                Create User
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                (click)="exportToXLS()"
+              >
+                <i class="fas fa-file-excel mr-1"></i> Export XLS
+              </button>
+            </div>
           </div>
           <!-- /.card-header -->
           <div class="card-body table-responsive p-0">
             <table
-            *ngIf="allUsers.length > 0"
+              *ngIf="allUsers.length > 0"
               datatable
+              [dtOptions]="dtOptions"
               class="row-border hover table table-hover text-nowrap"
             >
               <thead>
                 <tr>
-                  <th>Reseller</th>
-                  <th>Contact</th>
-                  <th>Clients</th>
-                  <th>Devices</th>
-                  <th>Credits</th>
-                  <th>Status</th>
-<!--                   <th>Login Status</th> -->
-                  <th>Actions</th>
+                  <th rowspan="2" class="align-middle">Reseller</th>
+                  <th rowspan="2" class="align-middle">Location</th>
+                  <th rowspan="2" class="align-middle">Plan</th>
+                  <th rowspan="2" class="align-middle text-center">Total Clients</th>
+                  <th colspan="2" class="text-center table-active">Active Clients</th>
+                  <th rowspan="2" class="align-middle text-center">Total Devices</th>
+                  <th colspan="3" class="text-center table-active">Active Devices</th>
+                  <th rowspan="2" class="align-middle text-center">Status</th>
+                  <th rowspan="2" class="align-middle">Actions</th>
+                </tr>
+                <tr>
+                  <th class="text-center border-top-0">{{ pastMonthName }}</th>
+                  <th class="text-center border-top-0">{{ currentMonthName }}</th>
+                  <th class="text-center border-top-0">{{ pastMonthName }}</th>
+                  <th class="text-center border-top-0">{{ currentMonthName }}</th>
+                  <th class="text-center border-top-0">Online</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let user of allUsers; trackBy: trackByDeviceId">
-                  <td>{{ user.tenant }}</td>
-                  <td>{{ user.client }}</td>
-                  <td>{{ user.clients }}</td>
-                  <td>{{ user.devices }}</td>
-                  <td>{{ user.credits }}</td>
+                  <td><a href="/resellers/{{user.tenantid}}">{{ user.tenant }}</a></td>
+                  <td>{{ user.location }}</td>
+                  <td>{{ getPlanName(user.planid) }}</td>
+                  <td class="text-center">{{ user.clients?.total }}</td>
+                  <td class="text-center">{{ user.clients?.activepastmonth }}</td>
+                  <td class="text-center">{{ user.clients?.active }}</td>
+                  <td class="text-center">{{ user.devices?.total }}</td>
+                  <td class="text-center">{{ user.devices?.activepastmonth }}</td>
+                  <td class="text-center">{{ user.devices?.active }}</td>
+                  <td class="text-center">{{ user.devices?.online }}</td>
                   <td>
                     <div class="custom-control custom-switch">
                       <input
@@ -118,6 +139,19 @@
                       (click)="read(user)"
                       data-toggle="modal"
                       data-target="#user-modal"
+                    ></i>
+                    <i
+                      *ngIf="!user.emailverified"
+                      class="fas fa-envelope"
+                      style="margin-left: 15px; cursor: pointer;"
+                      (click)="sendWelcomeEmail(user)"
+                      title="Enviar Correo de Bienvenida"
+                    ></i>
+                    <i
+                      *ngIf="user.emailverified"
+                      class="fas fa-check"
+                      style="margin-left: 15px; color: #28a745;"
+                      title="Cliente con acceso verificado"
                     ></i>
                   </td>
                 </tr>
@@ -248,12 +282,12 @@
                 >{{ formError.phone }}</span
               >
             </div>
-                        <div class="form-group">
-                          <label for="location">Location</label>
-                          <input type="location" formControlName="location" class="form-control"
-                            [ngClass]="{ 'is-invalid': errors.includes('phone') }" id="location" placeholder="Location" />
-                          <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">{{ formError.location }}</span>
-                        </div>
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="location" formControlName="location" class="form-control"
+                [ngClass]="{ 'is-invalid': errors.includes('phone') }" id="location" placeholder="Location" />
+              <span id="location-error" *ngIf="errors.includes('location')" class="error invalid-feedback">{{ formError.location }}</span>
+            </div>
           </div>
           <!-- /.card-body -->
         </form>

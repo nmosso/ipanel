@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
+import { NgxTurnstileModule } from 'ngx-turnstile';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -36,11 +37,12 @@ import { CommonModule } from '@angular/common';
     DefaultLayoutModule,
     DashboardModule,
     SharedAppModule,
+    FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
     NgbModule,
     BrowserModule,
-    RecaptchaModule,        // Módulo para el reCAPTCHA
-    RecaptchaFormsModule   // Opcional, si lo usas en formularios reactivos
+    NgxTurnstileModule
   ],
   providers: [
     FeatureGuard,

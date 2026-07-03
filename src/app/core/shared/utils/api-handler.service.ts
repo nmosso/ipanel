@@ -13,7 +13,7 @@ export class ApiHandlerService {
 
   requestCall(api: string, method: ApiMethod, params?: string, data?: any) {
     let response;
-    let token = localStorage.getItem('token') || '';
+    let token = sessionStorage.getItem('token') || '';
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });

@@ -14,7 +14,7 @@ export class PermissionService {
 
   checkPermission(user, feature: Features, permission: Permission,url = null): boolean {
 
-    let allowedUrls = JSON.parse(localStorage.getItem('navItems'));
+    let allowedUrls = JSON.parse(sessionStorage.getItem('navItems'));
     if(allowedUrls){
       const new_url = url.split('?');
       const featurePermission = allowedUrls.find(f => f.url === new_url[0]);

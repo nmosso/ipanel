@@ -1,0 +1,33 @@
+.component-container {
+  padding: 1rem 1.5rem;
+}
+
+.card {
+  border-radius: 8px;
+}
+
+.card-header h5 {
+  font-weight: 600;
+}
+
+.table thead th {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9ff;
+}
+
+.badge-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+#brand-server-error {
+  border-left: 4px solid #dc3545;
+  background-color: #fff5f5;
+}

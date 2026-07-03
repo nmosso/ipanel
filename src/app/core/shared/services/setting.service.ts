@@ -8,7 +8,7 @@ import { API_ENDPOINTS, ApiMethod } from 'src/app/core/shared/utils/const';
 export class SettingService {
 userInfo:any;
   constructor(private http: ApiHandlerService) {
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
   }
 
   getAllCoutriesList() {

@@ -23,10 +23,10 @@ export class MonitoringComponent implements OnInit {
     private viewContainer: ViewContainerRef
     
   ) {
-    //this.clientInfo = JSON.parse(localStorage.getItem('clientInfo'));
-    let accessToken = localStorage.getItem('token') || ''
+    //this.clientInfo = JSON.parse(sessionStorage.getItem('clientInfo'));
+    let accessToken = sessionStorage.getItem('token') || ''
     this.iframeUrl = `https://xastra.xisrv.xyz?token=${accessToken}`
-    this.role = localStorage.getItem('role');
+    this.role = sessionStorage.getItem('role');
   }
 
   ngOnInit(): void {

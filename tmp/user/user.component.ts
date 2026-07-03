@@ -50,7 +50,7 @@ export class ClientsComponent implements OnInit {
     private clientsService: ClientsService,
     private viewContainer: ViewContainerRef
     ) {
-    this.clientsInfo = JSON.parse(localStorage.getItem('clientsInfo'));
+    this.clientsInfo = JSON.parse(sessionStorage.getItem('clientsInfo'));
   }
 
   ngOnInit(): void {

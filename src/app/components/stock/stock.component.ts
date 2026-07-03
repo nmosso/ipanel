@@ -7,25 +7,26 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmationComponent } from '../../core/shared/components/confirmation/confirmation.component';
 import { RolesService } from '../../core/shared/services/roles.service';
-import { DevicesService } from './devices.service';
+import { StockService } from './stock.service';
 
 import { ActivatedRoute, TitleStrategy } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap, map, catchError, of, filter, tap } from 'rxjs';
-import { Device } from './devices-model';
+import { Device } from './stock-model';
 import { DataTableDirective } from 'angular-datatables';
 
 @Component({
   selector: 'app-client',
-  templateUrl: './devices.component.html',
-  styleUrls: ['./devices.component.css'],
+  templateUrl: './stock.component.html',
+  styleUrls: ['./stock.component.css'],
 })
-export class DevicesComponent implements OnInit {
+export class StockComponent implements OnInit {
   @ViewChild('closeModal') closeModal: ElementRef;
   @ViewChild(DataTableDirective, { static: false })
   dtElement!: DataTableDirective;
 
   model: NgbDateStruct;
 
+  dtOptions: DataTables.Settings = {};
   selectedRoles: any = [];
   closeResult: string;
   clientInfo: any;
@@ -80,15 +81,12 @@ export class DevicesComponent implements OnInit {
 
   intervalId!: number;
   selectedDevices: any[] = [];
-  dtOptions: DataTables.Settings = {
-    pageLength: 100
-  };
 
   constructor(
     private zone: NgZone,
     private cd: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private devicesService: DevicesService,
+    private StockService: StockService,
     private viewContainer: ViewContainerRef,
     private cdr: ChangeDetectorRef
   ) {
@@ -204,7 +202,7 @@ export class DevicesComponent implements OnInit {
   }
   async getDevices() {
     //let params = {noclients: 'true'};
-    this.devicesService.getDevicesinfo(null, this.allDevicesInfo, null).then((data: any) => { //getchannelsinfo
+    this.StockService.getDevicesinfo(null, this.allDevicesInfo, this.tenantid).then((data: any) => { //getchannelsinfo
       console.log(data)
       this.allDevices = data.slice();
       this.allFilteredDevices = data.slice();;
@@ -213,7 +211,7 @@ export class DevicesComponent implements OnInit {
 
   async getDevicesByClientId(clientID: number) {
 
-    this.devicesService.getDevicesinfo(clientID, this.allDevicesInfo, null).then((data: any) => { //getchannelsinfo
+    this.StockService.getDevicesinfo(clientID, this.allDevicesInfo, this.tenantid).then((data: any) => { //getchannelsinfo
       console.log(data)
       this.allDevices = data.slice();
       this.allFilteredDevices = data.slice();
@@ -221,7 +219,7 @@ export class DevicesComponent implements OnInit {
   }
   async getClientbyClientId(clientID: number) {
 
-    this.devicesService.getDevicesinfo(clientID, this.allDevicesInfo, null).then((data: any) => { //getchannelsinfo
+    this.StockService.getDevicesinfo(clientID, this.allDevicesInfo, this.tenantid).then((data: any) => { //getchannelsinfo
       console.log(data)
       this.clientname = data[0].name;
     });
@@ -244,7 +242,7 @@ export class DevicesComponent implements OnInit {
     console.log(`allFilteredDevices: ${this.allFilteredDevices.length}`);
     console.log(this.allFilteredDevices);
     // console.log(`allDevicesInfo: ${this.allDevicesInfo}`);
-    // this.devicesService.getDevicesinfo(null, this.allDevicesInfo).then((data: any) => { //getchannelsinfo
+    // this.StockService.getDevicesinfo(null, this.allDevicesInfo).then((data: any) => { //getchannelsinfo
     //   console.log(data)
     //   this.allDevices = data;
     // });
@@ -315,7 +313,7 @@ export class DevicesComponent implements OnInit {
 
   async getClientList() {
 
-    this.devicesService.getClientsinfo(this.clientFilters).then((data: any) => { //getchannelsinfo
+    this.StockService.getClientsinfo(this.clientFilters).then((data: any) => { //getchannelsinfo
       console.log(data)
       this.allClients = data;
     });
@@ -324,14 +322,14 @@ export class DevicesComponent implements OnInit {
 
   async getTenantsList() {
 
-    this.devicesService.getTenantsinfo(this.clientFilters).then((data: any) => { //getchannelsinfo
+    this.StockService.getTenantsinfo(this.clientFilters).then((data: any) => { //getchannelsinfo
       console.log(data)
       this.allTenants = data;
     });
   }
 
   async getBrandsList() {
-    this.devicesService.getBrandList(this.clientFilters).then((data: any) => { //getchannelsinfo
+    this.StockService.getBrandList(this.clientFilters).then((data: any) => { //getchannelsinfo
       console.log(data)
       this.allBrands = data;
     });
@@ -380,7 +378,7 @@ export class DevicesComponent implements OnInit {
   async newDevice() {
 
     //this.formSubmissionFlag = true;
-    this.devicesService.devicesPreAdd(this.clientid).then((dev: any) => {
+    this.StockService.devicesPreAdd(this.clientid).then((dev: any) => {
 
       this.getDevicesList();
       this.cdr.detectChanges();
@@ -428,7 +426,7 @@ export class DevicesComponent implements OnInit {
       debounceTime(500),
       distinctUntilChanged(),
       // evita pegarle al backend si estÃ¡ vacÃ­o
-      switchMap((value: any) => this.devicesService.devicesBarcodeExists(value))
+      switchMap((value: any) => this.StockService.devicesBarcodeExists(value))
     ).subscribe((res: any) => {
       //debugger
       const cdev = this.deviceForm.get('deviceid').value;
@@ -453,7 +451,7 @@ export class DevicesComponent implements OnInit {
       distinctUntilChanged(),
       // evita pegarle al backend si estÃ¡ vacÃ­o
       switchMap((value: any) => (value in [null, undefined, ''] || value.length < 4) ? of({ username: '' }) : of(value)),
-      switchMap((value: any) => this.devicesService.devicesUsernameExists(value))
+      switchMap((value: any) => this.StockService.devicesUsernameExists(value))
     ).subscribe((res: any) => {
       //debugger
       const cdev = this.deviceForm.get('deviceid').value;
@@ -489,7 +487,7 @@ export class DevicesComponent implements OnInit {
     item.status = item.status === 'enabled' ? 'disabled' : 'enabled';
     this.deviceForm.patchValue({ 'status': item.status });
     this.deviceForm.patchValue(item);
-    this.devicesService.devicesUpdateStatus(item.username, item.status).then((data: any) => {
+    this.StockService.devicesUpdateStatus(item.username, item.status).then((data: any) => {
       this.formSubmissionFlag = false;
       this.closeModal.nativeElement.click();
       this.getDevicesList();
@@ -544,7 +542,7 @@ export class DevicesComponent implements OnInit {
     formData.append('obs', this.deviceForm.value.obs);
 
 
-    this.devicesService.devicesAdd(this.formDataToJson(formData)).then((data: any) => {
+    this.StockService.devicesAdd(this.formDataToJson(formData)).then((data: any) => {
       this.deviceForm.reset();
       this.closeModal.nativeElement.click();
       this.formSubmissionFlag = false;
@@ -601,7 +599,7 @@ export class DevicesComponent implements OnInit {
     formData.append('state', this.deviceForm.value.state);
     formData.append('obs', this.deviceForm.value.obs);
 
-    this.devicesService.devicesUpdate(this.formDataToJson(formData)).then((data: any) => {
+    this.StockService.devicesUpdate(this.formDataToJson(formData)).then((data: any) => {
       this.formSubmissionFlag = false;
       this.closeModal.nativeElement.click();
       this.getDevicesList();
@@ -633,7 +631,7 @@ export class DevicesComponent implements OnInit {
     dialogRef.instance.action.subscribe(x => {
       if (x) {
         let device = { deviceid: i.deviceid, clientid: i.clientid };
-        this.devicesService.devicesUnassign(device).then((data: any) => {
+        this.StockService.devicesUnassign(device).then((data: any) => {
           this.getDevicesList();
           this.cdr.detectChanges();
           dialogRef.instance.visible = false;
@@ -676,50 +674,5 @@ export class DevicesComponent implements OnInit {
         } */
     return validFlag;
   }
-
-  exportToXLS() {
-    const isNotTenant = this.role !== 'tenant';
-    const headers = ['ID'];
-    if (isNotTenant) {
-      headers.push('Reseller');
-    }
-    headers.push('Client', 'Brand', 'Barcode', 'Username', 'Connections', 'IP', 'State', 'Last', 'Time', 'Channel', 'Status');
-
-    let html = '<table border="1"><thead><tr>';
-    headers.forEach(h => {
-      html += `<th style="background-color: #f2f2f2;">${h}</th>`;
-    });
-    html += '</tr></thead><tbody>';
-    
-    this.allFilteredDevices.forEach((dev: any) => {
-      html += '<tr>';
-      html += `<td>${dev.deviceid || ''}</td>`;
-      if (isNotTenant) {
-        html += `<td>${dev.reseller || ''}</td>`;
-      }
-      html += `<td>${dev.account || ''}</td>`;
-      html += `<td>${dev.brand || ''}</td>`;
-      html += `<td>${dev.barcode || ''}</td>`;
-      html += `<td>${dev.username || ''}</td>`;
-      html += `<td>${dev.connections ?? 0}</td>`;
-      html += `<td>${dev.lastip || ''}</td>`;
-      html += `<td>${dev.clientstatus || ''}</td>`;
-      html += `<td>${dev.lastecm || ''}</td>`;
-      html += `<td>${dev.ltime || ''}</td>`;
-      html += `<td>${dev.lastchannel || ''}</td>`;
-      html += `<td>${dev.status || ''}</td>`;
-      html += '</tr>';
-    });
-    html += '</tbody></table>';
-
-    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "devices.xls");
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
 }
+

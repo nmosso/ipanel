@@ -38,7 +38,7 @@ export class ApiService {
       let errorMessage;
       // console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
       // const headers = { 'apikey': environment.apikey }
-      let token = localStorage.getItem('token') || '';
+      let token = sessionStorage.getItem('token') || '';
       //console.log(`TOKEN:`,token)
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
@@ -70,7 +70,7 @@ export class ApiService {
       let errorMessage;
       //console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
       //const headers = { 'apikey': environment.apikey }
-      let token = localStorage.getItem('token') || '';
+      let token = sessionStorage.getItem('token') || '';
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
       });
@@ -100,7 +100,7 @@ export class ApiService {
       let errorMessage;
       //console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
       //const headers = { 'apikey': environment.apikey }
-      let token = localStorage.getItem('token') || '';
+      let token = sessionStorage.getItem('token') || '';
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
       });
@@ -128,7 +128,7 @@ export class ApiService {
       let errorMessage;
       //console.log(`Apihttp request to:(${method}) ${API_URL}${api}`);
       //const headers = { 'apikey': environment.apikey }
-      let token = localStorage.getItem('token') || '';
+      let token = sessionStorage.getItem('token') || '';
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`, 'apikey': environment.apikey
       });

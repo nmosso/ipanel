@@ -24,8 +24,8 @@ export class AuthInterceptor implements HttpInterceptor {
     const fingerprint =  getBrowserFingerprint();
 
     let accessToken = ''
-    if (localStorage.getItem('token')) {
-      accessToken = localStorage.getItem('token') || ''
+    if (sessionStorage.getItem('token')) {
+      accessToken = sessionStorage.getItem('token') || ''
     }
     if (accessToken) {
       req = this.AddBrowserIdAndToken(req, fingerprint, accessToken);
@@ -36,7 +36,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
     return next.handle(req).pipe(catchError(error => {
       if(error.status == 401 && error.statusText == 'Unauthorized'){
-        localStorage.clear()
+        sessionStorage.clear()
         window.location.reload();
       }else{
         return throwError(() => error);
@@ -46,7 +46,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
   AddBrowserIdAndToken(request: HttpRequest<any>, fingerprint: string, token: string) {
     //debugger
-    let userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    let userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
     if(!userInfo){userInfo = {user_id:null}}
     return request.clone({
       setHeaders: {

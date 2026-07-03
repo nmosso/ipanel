@@ -50,7 +50,7 @@ export class UserComponent implements OnInit {
     private usersService: UsersService,
     private viewContainer: ViewContainerRef
     ) {
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
   }
 
   ngOnInit(): void {

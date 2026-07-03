@@ -9,7 +9,7 @@ export const navItems: any[] = [
     name: 'Clients',
     url: '/clients',
     auth: ['tenant', 'superadmin'],
-    iconComponent: { name: 'nav-icon fas fa-regular fa-user'}
+    iconComponent: { name: 'nav-icon fas fa-regular fa-user' }
   },
   {
     name: 'Resellers',
@@ -19,21 +19,35 @@ export const navItems: any[] = [
   },
   {
     name: 'Stock',
+    url: '/stock',
+    auth: ['admin', 'superadmin'],
+    iconComponent: { name: 'nav-icon fas fa-regular fa-tv' }
+  },
+
+  {
+    name: 'Devices',
     url: '/devices',
     auth: ['tenant', 'admin', 'superadmin'],
     iconComponent: { name: 'nav-icon fas fa-regular fa-tv' }
   },
-  {
+
+/*   {
     name: 'Credits',
     url: '/credits',
     auth: ['tenant', 'admin', 'superadmin'],
     iconComponent: { name: 'nav-icon fas fa-regular fa-dollar-sign' }
-  },
+  }, */
   {
     name: 'Parameters',
     url: '/params',
     auth: ['tenant', 'superadmin', 'admin'],
     iconComponent: { name: 'nav-icon fas fa-regular fa-file-video' }
+  },
+  {
+    name: 'Brands',
+    url: '/brands',
+    auth: ['admin', 'superadmin'],
+    iconComponent: { name: 'nav-icon fas fa-tag' }
   },
   {
     name: 'Usuarios',

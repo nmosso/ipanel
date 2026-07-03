@@ -24,6 +24,7 @@ export class TenantComponent implements OnInit {
   userRoles:any = [];
   errors: any = [];
   formError: any = {};
+  plans: any[] = [];
   tableColumns:[
     'Id',
     'User Name',
@@ -43,6 +44,10 @@ export class TenantComponent implements OnInit {
   popUpShowHideFlag: boolean;
   editPopup: boolean;
   formSubmissionFlag: boolean = false;
+  dtOptions: DataTables.Settings = {
+    pageLength: 100
+  };
+
   constructor(
     private roleService: RolesService,
     private socket: SocketService,
@@ -51,11 +56,13 @@ export class TenantComponent implements OnInit {
     private tenantsService: TenantsService,
     private viewContainer: ViewContainerRef
     ) {
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+
   }
 
   ngOnInit(): void {
     this.getUserList();
+    this.getPlans();
     //this.getUserRoleList();
     this.setForm();
   }
@@ -72,6 +79,33 @@ export class TenantComponent implements OnInit {
       console.log('Error fetching tenants');
       console.log(err);
     });
+  }
+
+  async getPlans() {
+    this.tenantsService.getPlans().then((data: any) => {
+      this.plans = data;
+      this.cdr.detectChanges();
+    }).catch((err) => {
+      console.log('Error fetching plans', err);
+    });
+  }
+
+  getPlanName(planid: any): string {
+    const plan = this.plans.find(p => p.planid == planid);
+    return plan ? plan.plan : (planid || '');
+  }
+
+  get currentMonthName(): string {
+    const date = new Date();
+    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+  }
+
+  get pastMonthName(): string {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1);
+    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
   }
 
   getUserRoleList() {
@@ -96,6 +130,7 @@ export class TenantComponent implements OnInit {
       location: new FormControl(null, [Validators.required]),
       client: new FormControl(null, [Validators.required]),
       status: new FormControl(),
+      planid: new FormControl(),
       loginStatus: new FormControl(),
       phone: new FormControl(null, [Validators.required]),
       password: new FormControl(null, [Validators.required]),
@@ -133,6 +168,7 @@ export class TenantComponent implements OnInit {
     formData.append('tenant', this.userForm.value.tenant);
     formData.append('client', this.userForm.value.client);
     formData.append('email', this.userForm.value.email);
+    formData.append('planid', this.userForm.value.planid);
     formData.append('location', this.userForm.value.location);
     formData.append('password', this.userForm.value.password);
     formData.append('password_confirmation', this.userForm.value.password_confirmation);
@@ -186,6 +222,7 @@ export class TenantComponent implements OnInit {
     formData.append('identityid', this.userForm.value.identityid);
     formData.append('tenant', this.userForm.value.tenant);
     formData.append('email', this.userForm.value.email);
+    formData.append('planid', this.userForm.value.planid);
     formData.append('client', this.userForm.value.client);
     formData.append('location', this.userForm.value.location);
     formData.append('phone', this.userForm.value.phone);
@@ -231,17 +268,22 @@ export class TenantComponent implements OnInit {
     dialogRef.instance.visible = true;
     dialogRef.instance.action.subscribe(x => {
       if (x) {
-        // this.usersService.deleteUser(i.user_id)?.subscribe((res: any) => {
-        //   if (res.status === 'success') {
-        //     dialogRef.instance.visible = false;
-        //     Swal.fire({
-        //       title: '',
-        //       text: 'User Deleted Successfully',
-        //       icon: 'success',
-        //       confirmButtonText: 'Close'
-        //     })
-        //   }
-        // })
+        this.tenantsService.deleteUser(i.tenantid)?.then((res: any) => {
+          if (res.status === 'success') {
+            this.userForm.reset();
+            this.editPopup = false;
+            this.formSubmissionFlag = false;
+            this.closeModal.nativeElement.click();
+            this.getUserList();
+            this.cdr.detectChanges();
+            Swal.fire({
+              title: '',
+              text: 'Reseller Deleted Successfully',
+              icon: 'success',
+              confirmButtonText: 'Close'
+            })
+          }
+        })
         dialogRef.instance.visible = false;
         Swal.fire({
           title: '',
@@ -270,16 +312,53 @@ export class TenantComponent implements OnInit {
   }
 
 
+  exportToXLS() {
+    const headers = [
+      'Reseller',
+      'Location',
+      'Plan',
+      'Total Clients',
+      `Clients (${this.pastMonthName})`,
+      `Clients (${this.currentMonthName})`,
+      'Total Devices',
+      `Devices (${this.pastMonthName})`,
+      `Devices (${this.currentMonthName})`,
+      'Devices Online (now)',
+      'Status'
+    ];
+    let html = '<table border="1"><thead><tr>';
+    headers.forEach(h => {
+      html += `<th style="background-color: #f2f2f2;">${h}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    
+    this.allUsers.forEach(user => {
+      html += '<tr>';
+      html += `<td>${user.tenant || ''}</td>`;
+      html += `<td>${user.location || ''}</td>`;
+      html += `<td>${this.getPlanName(user.planid)}</td>`;
+      html += `<td>${user.clients?.total ?? 0}</td>`;
+      html += `<td>${user.clients?.activepastmonth ?? 0}</td>`;
+      html += `<td>${user.clients?.active ?? 0}</td>`;
+      html += `<td>${user.devices?.total ?? 0}</td>`;
+      html += `<td>${user.devices?.activepastmonth ?? 0}</td>`;
+      html += `<td>${user.devices?.active ?? 0}</td>`;
+      html += `<td>${user.devices?.online ?? 0}</td>`;
+      html += `<td>${user.status || ''}</td>`;
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
 
-
-
-
-
-
-
-
-
-
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "resellers.xls");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   //  FILE UPLOAD FUNCTIONS
 
@@ -337,6 +416,38 @@ export class TenantComponent implements OnInit {
     setTimeout(() => {
       e?.focus();
     }, 200);
+  }
+
+  sendWelcomeEmail(user: any) {
+    Swal.fire({
+      title: 'Â¿EstÃ¡s seguro?',
+      text: `Se enviarÃ¡ un correo de bienvenida con una nueva contraseÃ±a a ${user.email}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'SÃ­, enviar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.tenantsService.sendWelcomeEmail(user.email).then((res: any) => {
+          Swal.fire({
+            title: 'Enviado',
+            text: 'El correo de bienvenida ha sido enviado con Ã©xito.',
+            icon: 'success',
+            confirmButtonText: 'Cerrar'
+          });
+        }).catch((err: any) => {
+          console.error(err);
+          Swal.fire({
+            title: 'Error',
+            text: err?.errmessage || 'OcurriÃ³ un error al enviar el correo.',
+            icon: 'error',
+            confirmButtonText: 'Cerrar'
+          });
+        });
+      }
+    });
   }
 
 }

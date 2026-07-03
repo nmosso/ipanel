@@ -30,11 +30,13 @@ export class LoginComponent {
 
     this.authService.signIn(this.formDataToJson(formData)).then((data: any) => {
       console.log(data)
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('email', this.loginForm.value.email);
-      localStorage.setItem('name', data.name);
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('tenantid', data.tenantid);
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('email', this.loginForm.value.email);
+      sessionStorage.setItem('name', data.name);
+      sessionStorage.setItem('role', data.role);
+      sessionStorage.setItem('tenantid', data.tenantid);
+      sessionStorage.setItem('options', data.options);
+
       this.router.navigate(['/dashboard']);
     }).catch((err:any)=>{
       console.error('Login error: ');

@@ -33,19 +33,14 @@
                 </select>
               </div>
               <div class="col-2">
-                <button class="btn btn-danger" [disabled]="selectedDevices.length === 0" (click)="bulkDisable()">
-                  Disable Selected ({{ selectedDevices.length }})
-                </button>
-              </div>
-              <div class="col-2">
-                <button type="button" class="btn btn-success" (click)="exportToXLS()">
-                  <i class="fas fa-file-excel mr-1"></i> Export XLS
-                </button>
-              </div>
-              <div class="col-4"></div>
+<button class="btn btn-danger" [disabled]="selectedDevices.length === 0" (click)="bulkDisable()">
+  Disable Selected ({{ selectedDevices.length }})
+</button>
+            <div class="col-6"></div>
+           </div>
               <div class="col-2"> <!-- *ngIf="role != 'tenant'" -->
                 <button type="button" data-toggle="modal" data-target="#devices-modal"
-                  class="btn btn-primary" style="float: right" (click)="newDevice()">
+                  class="card-title btn btn-primary" style="float: right" class="btn btn-primary" (click)="newDevice()">
                   Register new Device
                 </button>
               </div>

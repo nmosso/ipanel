@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class DevicesService {
+export class StockService {
 
   constructor(private http: ApiService) { }
 
@@ -240,3 +240,4 @@ export class DevicesService {
 
   }
 }
+

@@ -47,7 +47,7 @@ export class ParameterComponent implements OnInit {
     private parametersService: ParametersService,
     private viewContainer: ViewContainerRef
     ) {
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
   }
 
   ngOnInit(): void {

@@ -33,7 +33,7 @@ export class CommonComponent {
     private settingService: SettingService,
     private roleService: RolesService,
     private viewContainer: ViewContainerRef) {
-      this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
 
   }
 

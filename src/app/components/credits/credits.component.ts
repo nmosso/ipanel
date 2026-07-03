@@ -27,7 +27,9 @@ export class CreditsComponent implements OnInit {
 
   model: NgbDateStruct;
   
-  dtOptions: DataTables.Settings = {};
+  dtOptions: DataTables.Settings = {
+    pageLength: 100
+  };
   selectedRoles: any = [];
   closeResult: string;
   clientInfo: any;
@@ -50,8 +52,8 @@ export class CreditsComponent implements OnInit {
   tableColumns: [
     'Id',
     'Nombre de Usuario',
-    'Correo Electrónico',
-    'Teléfono',
+    'Correo ElectrÃ³nico',
+    'TelÃ©fono',
     'Estado',
     'Acciones'
   ];
@@ -92,7 +94,7 @@ export class CreditsComponent implements OnInit {
     private viewContainer: ViewContainerRef,
     private cdr: ChangeDetectorRef
   ) {
-    this.role = localStorage.getItem('role');
+    this.role = sessionStorage.getItem('role');
     console.log(`Role: ${this.role}`);
   }
 
@@ -116,7 +118,7 @@ export class CreditsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.role = localStorage.getItem('role');
+    this.role = sessionStorage.getItem('role');
     this.getCreditsList();
     this.getBrandsList();
     this.getClientList();
@@ -158,7 +160,7 @@ async getStatusList() {
     // });
   }
 
-  // función segura para reemplazar la lista
+  // funciÃ³n segura para reemplazar la lista
   async safeReplaceCredits(newList: any[]) {
     console.log('safeReplaceCredits START', {
       oldLen: this.allFilteredCredits?.length,
@@ -172,11 +174,11 @@ async getStatusList() {
       console.warn('safeReplaceCredits: duplicate creditid found:', dup);
     }
 
-    // 2) MUTAR el array existente para evitar reuso por posición
+    // 2) MUTAR el array existente para evitar reuso por posiciÃ³n
     // Esto hace que Angular retire nodos viejos antes de insertar nuevos.
     this.zone.run(() => {
       try {
-        // vaciar primero (Angular removerá nodos existentes)
+        // vaciar primero (Angular removerÃ¡ nodos existentes)
         this.allFilteredCredits.length = 0;
       } catch (e) {
         console.warn('safeReplaceCredits: error clearing array', e);
@@ -199,16 +201,16 @@ async getStatusList() {
       }
     });
 
-    // 5) Si usás virtual scroll, forzá el refresh / checkViewportSize
+    // 5) Si usÃ¡s virtual scroll, forzÃ¡ el refresh / checkViewportSize
     setTimeout(() => {
       try {
         // this.viewport?.checkViewportSize?.();
-        // si usás ngx-virtual-scroller: this.virtualScroller?.refresh?.();
+        // si usÃ¡s ngx-virtual-scroller: this.virtualScroller?.refresh?.();
       } catch (e) {
         console.warn('safeReplaceCredits: viewport refresh error', e);
       }
       // 6) Evitar llamar detectChanges() immediately en el mismo tick,
-      // sino Angular intentará reconciliar mientras las vistas aún se están actualizando.
+      // sino Angular intentarÃ¡ reconciliar mientras las vistas aÃºn se estÃ¡n actualizando.
       try {
         this.cd.detectChanges();
       } catch (e) {

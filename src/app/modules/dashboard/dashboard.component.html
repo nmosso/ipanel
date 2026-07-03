@@ -44,8 +44,8 @@
       
               <div class="d-flex justify-content-center align-items-center gap-2">
       
-                <input type="radio" [name]="'group-' + cs" [value]="feeder.astraserverid" [checked]="isEnabled(feeder, cs)"
-                  (change)="onSelect(feeder.astraserverid, cs)" />
+                <input type="checkbox" [checked]="isEnabled(feeder, cs)"
+                  (change)="onSelect($event, feeder.astraserverid, cs)" />
       
                 <span>
                   {{ getState(feeder, cs) }}
@@ -57,9 +57,71 @@
           </tr>
         </tbody>
       </table>
-
+      <!-- Dealer-->
+      <div class="row" *ngIf="dealerrole?.includes('dealer')">
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h3>{{dealerstats.resellers}}</h3>
+      
+              <p>Resellers</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-success">
+            <div class="inner">
+              <h3>{{dealerstats.devicesonstock}}</h3>
+      
+              <p>Devices on Stock</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-warning">
+            <div class="inner">
+              <h3>{{dealerstats.totalclients}}</h3>
+      
+              <p>Total Clients</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <!-- <a href="#" class="small-box-footer">MOre info <i class="fas fa-arrow-circle-right"></i></a> -->
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-danger">
+            <div class="inner">
+              <h3>{{dealerstats.totalactivedevices}}</h3>
+      
+              <p>Total Active Devices</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+          </div>
+        </div>
+        <!-- ./col -->
+      </div>
       <!-- Small boxes (Stat box) -->
-      <div class="row" *ngIf="!adminrole?.includes(role)">
+      <div class="row" *ngIf="!adminrole?.includes(role) && !dealerrole?.includes('dealer')">
         <div class="col-lg-3 col-6">
           <!-- small box -->
           <div class="small-box bg-info">
@@ -96,7 +158,7 @@
             <div class="inner">
               <h3>{{devicesconnected}}</h3>
 
-              <p>Conected Devices</p>
+              <p>Active Devices</p>
             </div>
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
@@ -121,7 +183,7 @@
         </div>
         <!-- ./col -->
       </div>
-      <div class="row" *ngIf="!adminrole?.includes(role)">
+      <div class="row" *ngIf="!adminrole?.includes(role) && !dealerrole?.includes('dealer')">
         <div class="col-lg-3 col-6">
           <!-- small box -->
           <div class="small-box bg-info">

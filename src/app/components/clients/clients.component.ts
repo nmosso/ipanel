@@ -25,11 +25,13 @@ export class ClientsComponent implements OnInit {
 
   dtOptions: DataTables.Settings = {
     responsive: true,
+    pageLength: 100,
     columnDefs: [
       { targets: [4, 5, 6],  className: 'd-none d-lg-table-cell' },
       { targets: [7, 8, 9],  className: 'd-none d-lg-table-cell' }
     ] as any
   };
+
   selectedRoles: any = [];
   closeResult: string;
   clientInfo: any;
@@ -84,7 +86,7 @@ export class ClientsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder
   ) {
-    //this.clientInfo = JSON.parse(localStorage.getItem('clientInfo'));
+    //this.clientInfo = JSON.parse(sessionStorage.getItem('clientInfo'));
 
   }
 
@@ -127,7 +129,7 @@ export class ClientsComponent implements OnInit {
     return new Promise(async (resolve, reject) => {
       let date = new Date();
 
-      // Obtener el día, mes y año actual
+      // Obtener el dÃ­a, mes y aÃ±o actual
       let day = date.getDate();
       let month = date.getMonth() + 1; // Los meses son de 0 a 11, sumamos 1
       let year = date.getFullYear();
@@ -135,19 +137,19 @@ export class ClientsComponent implements OnInit {
       // Incrementar el mes en 1
       month += 1;
 
-      // Si el mes es mayor a 12, ajustar el año y el mes
+      // Si el mes es mayor a 12, ajustar el aÃ±o y el mes
       if (month > 12) {
         month = 1;
         year += 1;
       }
 
-      // Asegurar que el día es válido para el nuevo mes
+      // Asegurar que el dÃ­a es vÃ¡lido para el nuevo mes
       const daysInMonth = new Date(year, month, 0).getDate();
       if (day > daysInMonth) {
         day = daysInMonth;
       }
 
-      // Formatear el día y el mes para que siempre tengan dos dígitos
+      // Formatear el dÃ­a y el mes para que siempre tengan dos dÃ­gitos
       let sday = day < 10 ? `0${day}` : day.toString();
       let smonth = month < 10 ? '0' + month : month;
 
@@ -190,7 +192,7 @@ export class ClientsComponent implements OnInit {
 
     this.clientForm.get('username').valueChanges
       .pipe(
-        debounceTime(1000), // Espera 500 ms después del último evento
+        debounceTime(1000), // Espera 500 ms despuÃ©s del Ãºltimo evento
         distinctUntilChanged() // Evita ejecuciones si el valor no ha cambiado
       )
       .subscribe(value => {
@@ -202,9 +204,9 @@ export class ClientsComponent implements OnInit {
   }
 
   verificarUsername(valor: string): void {
-    // Lógica de verificación para el nombre de usuario
+    // LÃ³gica de verificaciÃ³n para el nombre de usuario
 
-    let tenantid = localStorage.getItem('tenantid');
+    let tenantid = sessionStorage.getItem('tenantid');
     if (tenantid === 'server23' || tenantid === 'server7') {
       console.log('Verificando el nombre de usuario:', valor);
       this.errorClientexists = false;
@@ -459,14 +461,14 @@ export class ClientsComponent implements OnInit {
     let validFlag = true;
     /*     if (!this.clientForm.value.email) {
           this.errors.push('email');
-          this.formError.errorForEmail = 'Correo Electrónico es requerido';
+          this.formError.errorForEmail = 'Correo ElectrÃ³nico es requerido';
           validFlag = false;
         } */
     validFlag = !(this.errorClientexists || this.errorClientNotexists);
     console.log(`Valid flag: ${validFlag}`)
     /*     if (!this.clientForm.value.password) {
           this.errors.push('password');
-          this.formError.errorForPassword = 'Contraseña es requerida';
+          this.formError.errorForPassword = 'ContraseÃ±a es requerida';
           validFlag = false;
         } */
     return validFlag;

@@ -82,7 +82,7 @@ export class ClientsFormComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder
   ) {
-    this.role = localStorage.getItem('role');
+    this.role = sessionStorage.getItem('role');
     console.log(`Role: ${this.role}`);
 
   }
@@ -243,7 +243,7 @@ export class ClientsFormComponent implements OnInit {
     return new Promise(async (resolve, reject) => {
       let date = new Date();
 
-      // Obtener el día, mes y año actual
+      // Obtener el dÃ­a, mes y aÃ±o actual
       let day = date.getDate();
       let month = date.getMonth() + 1; // Los meses son de 0 a 11, sumamos 1
       let year = date.getFullYear();
@@ -251,19 +251,19 @@ export class ClientsFormComponent implements OnInit {
       // Incrementar el mes en 1
       month += 1;
 
-      // Si el mes es mayor a 12, ajustar el año y el mes
+      // Si el mes es mayor a 12, ajustar el aÃ±o y el mes
       if (month > 12) {
         month = 1;
         year += 1;
       }
 
-      // Asegurar que el día es válido para el nuevo mes
+      // Asegurar que el dÃ­a es vÃ¡lido para el nuevo mes
       const daysInMonth = new Date(year, month, 0).getDate();
       if (day > daysInMonth) {
         day = daysInMonth;
       }
 
-      // Formatear el día y el mes para que siempre tengan dos dígitos
+      // Formatear el dÃ­a y el mes para que siempre tengan dos dÃ­gitos
       let sday = day < 10 ? `0${day}` : day.toString();
       let smonth = month < 10 ? '0' + month : month;
 
@@ -306,7 +306,7 @@ export class ClientsFormComponent implements OnInit {
 
     this.clientForm.get('username').valueChanges
       .pipe(
-        debounceTime(1000), // Espera 500 ms después del último evento
+        debounceTime(1000), // Espera 500 ms despuÃ©s del Ãºltimo evento
         distinctUntilChanged() // Evita ejecuciones si el valor no ha cambiado
       )
       .subscribe(value => {
@@ -450,7 +450,7 @@ export class ClientsFormComponent implements OnInit {
 
     // this.deviceForm.get('barcode').valueChanges
     //   .pipe(
-    //     debounceTime(1000), // Espera 500 ms después del último evento
+    //     debounceTime(1000), // Espera 500 ms despuÃ©s del Ãºltimo evento
     //     distinctUntilChanged() // Evita ejecuciones si el valor no ha cambiado
     //   )
     //   .subscribe(value => {

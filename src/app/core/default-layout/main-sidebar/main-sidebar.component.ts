@@ -20,9 +20,9 @@ export class MainSidebarComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    this.email = localStorage.getItem('email');
-    this.client = localStorage.getItem('name');
-    this.role = localStorage.getItem('role');
+    this.email = sessionStorage.getItem('email');
+    this.client = sessionStorage.getItem('name');
+    this.role = sessionStorage.getItem('role');
   }
 
   onLogout() {

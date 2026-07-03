@@ -34,9 +34,9 @@ interface Cardreader { status: 'enabled' | 'disabled'; cardreader: string; cards
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  // ahora: agrega la colección para "Últimos 5"
+  // ahora: agrega la colecciÃ³n para "Ãšltimos 5"
   @ViewChildren('ecmLast5Chart') last5Charts!: QueryList<ElementRef<HTMLCanvasElement>>;
   @ViewChildren('emmChart') emmCharts!: QueryList<ElementRef<HTMLCanvasElement>>;
 
@@ -52,15 +52,15 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
 
   adminrole: string[]; //*ngIf="multirole.includes(role)"
   operatorrole: string[]; //*ngIf="multirole.includes(role)"
-  role:string;
-//  cardserverId = 'Cardserver01';  // setéalo según tu UI/route
+  role: string;
+  //  cardserverId = 'Cardserver01';  // setÃ©alo segÃºn tu UI/route
   cardservers = ['Cardserver01', 'Cardserver02', 'Cardserver03']; //, 'Cardserver04'
-  feeders=[];
+  feeders = [];
   emmtypes = ['shared', 'global'] as const;
 
   private readonly colsPerSrv = 3; // last5, shared, global
 
-  // estado por índice
+  // estado por Ã­ndice
   charts: Chart[] = [];
   legends: { name: string; color: string }[][] = [];
   lastUpdated: (Date | undefined)[] = [];
@@ -75,23 +75,31 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
   // dashboard.component.ts
   private ChartCtor: any;
   private chartLocale: any;
-  cardserverslist:any = [];
+  cardserverslist: any = [];
   cardreaderslist: any = [];
   cardserversEnabled: Cardserver[] = [];
   cardreadersForServer: Cardreader[] = [];
+  dealerrole = '';
 
-
-  selectedCardserverid:string= null;
+  selectedCardserverid: string = null;
   selectedCardreader: string = null;
   //private subs = new Subscription();
   cardreaderLoading = false
   myname: string = '---';
 
-  constructor(private http: ApiService, private emmService: EmmService, private fb: FormBuilder) { 
+  dealerstats = {
+    resellers: 0,
+    devicesonstock: 0,
+    totalclients: 0,
+    totalactivedevices: 0
+  }
+  constructor(private http: ApiService, private emmService: EmmService, private fb: FormBuilder) {
     this.adminrole = ['superadmin'];
-    this.operatorrole = ['admin','tenant','operator'];
-    this.role = localStorage.getItem('role');
-    this.myname = localStorage.getItem('name');
+    this.operatorrole = ['admin', 'tenant', 'operator'];
+    this.role = sessionStorage.getItem('role');
+    this.myname = sessionStorage.getItem('name');
+    this.dealerrole = (sessionStorage.getItem('tenantid') === 'd6f6da27-dbc0-4aa6-935e-27dd8cf9d7e7') ? 'dealer' : '';
+    //console.log("dealerrole", this.dealerrole, '==> ', sessionStorage.getItem('tenantid'));
   }
   private idx3(iSrv: number, col: number) {  // col: 0=last5, 1=shared, 2=global
     return iSrv * this.colsPerSrv + col;
@@ -104,17 +112,24 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     this.getcardreaders();
 
   }
-  async loadStats() { 
-    this.emmService.getClientStats().then((data:any) => {  
-      this.clients = data.clients ?? 0;
-      this.devicestotal = data.devices ?? 0;
-      this.devicesonline = data.devicesonline ?? 0;
-      this.devicesconnected = data.devicesconnected ?? 0;
-      this.devicesoffline = data.devicesoffline ?? 0;
-      this.devicesdisabled = data.devicesdisabled ?? 0;
-      this.credits = data.credits ?? 0;
+  async loadStats() {
+
+    if (this.dealerrole === 'dealer') {
+      this.emmService.getTenantStats().then((data: any) => {
+        this.dealerstats = data;
+      });
+    } else {
+      this.emmService.getClientStats().then((data: any) => {
+        this.clients = data.clients ?? 0;
+        this.devicestotal = data.devices ?? 0;
+        this.devicesonline = data.devicesonline ?? 0;
+        this.devicesconnected = data.devicesconnected ?? 0;
+        this.devicesoffline = data.devicesoffline ?? 0;
+        this.devicesdisabled = data.devicesdisabled ?? 0;
+        this.credits = data.credits ?? 0;
         //console.log("statistics:",data);
-    })
+      })
+    }
   }
 
   /**Metodos para Feeders */
@@ -132,16 +147,19 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     return cs?.status === 'enabled';
   }
 
-  onSelect(feederId: string, cardserver: string) {
-    console.log('Seleccionado:', feederId, cardserver);
-    // Aquí haces tu lógica para mover el cardserver
-    const data = { feeder: feederId, cardserver: cardserver };
-    this.http.PostQuery ('enablefeederstatus', data ).then((data: any) => {
+  onSelect(event: Event, feederId: string, cardserver: string) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    const status = isChecked ? 'enabled' : 'disabled';
+    console.log('Seleccionado:', feederId, cardserver, 'Status:', status);
+    // AquÃ­ haces tu lÃ³gica para mover el cardserver
+    const data = { feeder: feederId, cardserver: cardserver, status: status };
+    this.http.PostQuery('enablefeederstatus', data).then((data: any) => {
       this.http.getQuery('feederlist').then((data: any) => {
         this.feeders = data;
       })
     }).catch((err: any) => {
-      console.log(err)});
+      console.log(err)
+    });
   }
 
   getStateClass(feeder: any, cardserver: string) {
@@ -160,10 +178,10 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     //console.log("getcardservers ----------------------------------------------------------------------------");
     this.emmService.getCardServers().then(async (data: any) => { //getchannelsinfo
 
-    this.cardserverslist = data;
+      this.cardserverslist = data;
       //console.log(this.cardserverslist)
 
-      this.http.getQuery('feederlist').then((data:any)=>{
+      this.http.getQuery('feederlist').then((data: any) => {
         this.feeders = data;
       })
     });
@@ -178,9 +196,9 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     });
   }
   async restartCardserver() {
-/*     let cs = {carserverid:this.selectedCardserverid};
-    console.log("Cardserverid:",cs) */
-    this.emmService.restartCardServers(this.selectedCardserverid).then((resp:any)=>{ 
+    /*     let cs = {carserverid:this.selectedCardserverid};
+        console.log("Cardserverid:",cs) */
+    this.emmService.restartCardServers(this.selectedCardserverid).then((resp: any) => {
       Swal.fire({
         title: '',
         text: 'Restart Device Sended',
@@ -201,11 +219,11 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       });
     });
   }
-  
+
   private idx(iSrv: number, iType: number) {
     return iSrv * this.emmtypes.length + iType; // orden DOM: server outer, type inner
   }
-  
+
   async ngAfterViewInit(): Promise<void> {
     const chartJs = await import('chart.js/auto');
     await import('chartjs-adapter-date-fns');       // side effect
@@ -222,7 +240,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     this.lastUpdated = new Array(total).fill(undefined);
     this.colorByReaderMaps = new Array(total).fill(0).map(() => new Map());
 
-    // 2.1 Inicializar canvases de "Últimos 5" (columna 0 de cada fila)
+    // 2.1 Inicializar canvases de "Ãšltimos 5" (columna 0 de cada fila)
     this.last5Charts.forEach((ref, row) => {
       const i = this.idx3(row, 0);
       this.initChartAt(i, ref.nativeElement.getContext('2d')!);
@@ -233,7 +251,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     this.emmCharts.forEach((ref, j) => {
       const row = Math.floor(j / this.emmtypes.length);
       const type = j % this.emmtypes.length;         // 0=shared, 1=global
-      const i = this.idx3(row, type + 1);         // col 1 ó 2
+      const i = this.idx3(row, type + 1);         // col 1 Ã³ 2
       this.initChartAt(i, ref.nativeElement.getContext('2d')!);
     });
 
@@ -245,18 +263,18 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       ))
     ).subscribe({
       next: (resps) => {
-        // mapear respuestas al índice de chart correcto
+        // mapear respuestas al Ã­ndice de chart correcto
         resps.forEach((resp, j) => {
           const row = Math.floor(j / this.emmtypes.length);
           const type = j % this.emmtypes.length;     // 0=shared, 1=global
-          const i = this.idx3(row, type + 1);     // col 1 ó 2
+          const i = this.idx3(row, type + 1);     // col 1 Ã³ 2
           this.updateChartAt(i, resp);
         });
       },
       error: (err) => console.error('EMM fetch error', err)
     });
 
-    // B) Refresco "Últimos 5" cada 60s
+    // B) Refresco "Ãšltimos 5" cada 60s
     timer(0, 60_000).pipe(
       // getEcmChartStats() devuelve Promise<Last5Response> (mapa)
       switchMap(() => this.emmService.getEcmChartStats()),
@@ -265,7 +283,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     ).subscribe((data: Last5Response) => {
       this.cardservers.forEach((cs, row) => {
         const points = data[cs] || [];
-        this.buildLast5Chart(row, cs, points);   // índice absoluto (columna 0)
+        this.buildLast5Chart(row, cs, points);   // Ã­ndice absoluto (columna 0)
         this.lastUpdated[this.idx3(row, 0)] = new Date();
       });
       // <<<--- construir la tabla snapshot
@@ -287,7 +305,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
   async setForm() {
     this.deviceForm = this.fb.group({
       cardserverid: [null],
-      cardreader:[null]
+      cardreader: [null]
     });
     this.deviceForm.get('cardserverid')?.valueChanges.subscribe(v => {
       console.log('cardserverid valueChanges ->', v);
@@ -297,17 +315,17 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       console.log('cardreader valueChanges ->', v);
     });
 
-/*    this.deviceForm = new FormGroup({
-      cardserverid: new FormControl(null),
-      cardreader: new FormControl(null)
-    }) */
+    /*    this.deviceForm = new FormGroup({
+          cardserverid: new FormControl(null),
+          cardreader: new FormControl(null)
+        }) */
 
-  //  this.fb.group({
-  //     cardserverid: [null],            // opcional
-  //     cardreader: [{ value: null, disabled: true }] // se habilita al elegir server
-  //   });
- 
-    // // React a selección del server y trae lectores on-demand
+    //  this.fb.group({
+    //     cardserverid: [null],            // opcional
+    //     cardreader: [{ value: null, disabled: true }] // se habilita al elegir server
+    //   });
+
+    // // React a selecciÃ³n del server y trae lectores on-demand
     // const sub = this.deviceForm.get('cardserverid')!.valueChanges.pipe(
     //   startWith(this.deviceForm.get('cardserverid')!.value),
     //   tap(() => {
@@ -320,14 +338,14 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     //   switchMap((serverId: string | null) => {
     //     if (!serverId) return of([] as Cardreader[]);
     //     // tu servicio que recibe el serverId y devuelve Promise<Cardreader[]>
-        
+
     //     return from(this.emmService.getReadersByCardserverid(serverId)).pipe(
     //       catchError(() => of([] as Cardreader[]))
     //     );
     //   }),
     //   tap(() => (this.cardreaderLoading = false))
     // ).subscribe(list => {
-    //   // normaliza y filtra habilitados por si el backend trae de más
+    //   // normaliza y filtra habilitados por si el backend trae de mÃ¡s
     //   const sid = (this.deviceForm.get('cardserverid')!.value ?? '').toString().trim().toLowerCase();
     //   this.cardreadersForServer = (list ?? []).filter(r =>
     //     r.status === 'enabled' &&
@@ -343,9 +361,9 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     // this.sub.add(sub);
 
   }
-  onSelectChange(type:string,e: Event) {
+  onSelectChange(type: string, e: Event) {
     const el = e.target as HTMLSelectElement;
-    console.log('type:',type,'DOM select value ->', el.value, 'selectedIndex ->', el.selectedIndex);
+    console.log('type:', type, 'DOM select value ->', el.value, 'selectedIndex ->', el.selectedIndex);
     if (type === 'cardserverid') {
       this.selectedCardserverid = el.value;
     } else {
@@ -354,7 +372,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     }
 
   }
-  /** crea gráfico vacío en índice i */
+  /** crea grÃ¡fico vacÃ­o en Ã­ndice i */
   private async initChartAt(i: number, ctx: CanvasRenderingContext2D): Promise<void> {
     //const esLocale = await import('date-fns/locale/es');
     const chart = new Chart(ctx, <ChartConfiguration<'line'>>{
@@ -394,23 +412,23 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     this.charts[i] = chart;
   }
 
-  // util epoch/string → ms
+  // util epoch/string â†’ ms
   private toMs = (t: string | number) =>
     typeof t === 'number' ? (t < 1e12 ? t * 1000 : t) : Date.parse(t);
 
-  /** asigna colores estables por reader para el gráfico i */
+  /** asigna colores estables por reader para el grÃ¡fico i */
   private ensureReaderColorsAt(i: number, readers: Array<{ id: string }>): void {
     const cmap = this.getColorMapAt(i);
     if (!Array.isArray(readers)) return;
     for (const r of readers) if (!cmap.has(r.id)) this.pickColor(cmap, r.id);
   }
 
-  /** transforma JSON → datasets y actualiza gráfico i */
+  /** transforma JSON â†’ datasets y actualiza grÃ¡fico i */
   private updateChartAt(i: number, resp: EmmResponse): void {
     const chart = this.charts[i];
     if (!chart) return;
 
-    // Coalesce y normalización contra null/undefined
+    // Coalesce y normalizaciÃ³n contra null/undefined
     const series = Array.isArray(resp.series) ? resp.series : [];
     const readers = this.normalizeReaders((resp as any).readers, series);
 
@@ -437,7 +455,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
         x.ticks = { ...(x.ticks || {}), maxTicksLimit: Math.min(72, Math.ceil((toMsVal - fromMs) / (stepMin * 60 * 1000))) };
       }
 
-      // leyenda usando readers (si están vacíos, la leyenda queda vacía)
+      // leyenda usando readers (si estÃ¡n vacÃ­os, la leyenda queda vacÃ­a)
       this.legends[i] = readers.map(r => {
         const c = cmap.get(r.id) ?? this.pickColor(cmap, r.id);
         return { name: nameById.get(r.id) ?? r.id, color: c.stroke };
@@ -447,7 +465,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Hay series → construir datasets normalmente
+    // Hay series â†’ construir datasets normalmente
     const datasets = series.map(s => {
       const c = cmap.get(s.reader_id) ?? this.pickColor(cmap, s.reader_id);
       return {
@@ -477,12 +495,12 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
     this.lastUpdated[i] = new Date(this.toMs(resp.meta?.generated_at as any));
   }
 
-  // estado por índice
+  // estado por Ã­ndice
   //charts: Chart[] = [];
   //legends: { name: string; color: string }[][] = [];
   //lastUpdated: (Date | undefined)[] = [];
   private colorByReaderMaps: Map<string, { stroke: string; fill: string }>[] = [];
-  
+
   // Paleta fija (R, G, B)
   private palette = [
     { stroke: 'rgb(220,53,69)', fill: 'rgba(220,53,69,0.15)' },  // rojo
@@ -507,13 +525,13 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
   }
 
   private buildLast5Chart(row: number, cs: string, points: Point[]) {
-    const i = this.idx3(row, 0);               // índice absoluto del chart "Últimos 5"
+    const i = this.idx3(row, 0);               // Ã­ndice absoluto del chart "Ãšltimos 5"
     const chart = this.charts[i];
     if (!chart) return;
 
     const toX = (p: Point) => p.dateend * 1000;
 
-    // ---- colores por reader (usa tu paleta y el mapa por gráfico) ----
+    // ---- colores por reader (usa tu paleta y el mapa por grÃ¡fico) ----
     const allReaders = Array.from(
       points.reduce((acc, p) => {
         Object.keys(p.readers || {}).forEach(r => acc.add(r));
@@ -521,7 +539,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       }, new Set<string>())
     ).sort();
 
-    // asegurá colores estables para estos readers en el gráfico i
+    // asegurÃ¡ colores estables para estos readers en el grÃ¡fico i
     this.ensureReaderColorsAt(i, allReaders.map(id => ({ id })));
     const cmap = this.colorByReaderMaps[i];
 
@@ -555,7 +573,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    // actualizar chart (parsing:false → usamos {x,y}, sin labels)
+    // actualizar chart (parsing:false â†’ usamos {x,y}, sin labels)
     chart.data = { datasets } as any;
 
     if (points.length) {
@@ -584,7 +602,7 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       const pts = data[cs] || [];
       if (!pts.length) { matrix[cs] = {}; continue; }
 
-      // último por dateend
+      // Ãºltimo por dateend
       const latest = pts.reduce((acc, p) => (!acc || p.dateend > acc.dateend) ? p : acc, pts[0]);
 
       const row: { [reader: string]: ReaderStats } = {};
@@ -599,8 +617,8 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
 
       // ---- TOTAL (qtty/avg/min/max/stddev) ----
       let N = 0;
-      let sum = 0;        // Σ n * avg
-      let sumsq = 0;      // Σ n * (std^2 + avg^2)
+      let sum = 0;        // Î£ n * avg
+      let sumsq = 0;      // Î£ n * (std^2 + avg^2)
       let minAll: number | null = null;
       let maxAll: number | null = null;
 
@@ -638,14 +656,14 @@ export class DashboardComponent implements   OnInit, AfterViewInit, OnDestroy {
       matrix[cs] = row;
     }
 
-    // Orden de filas: TOTAL primero, luego readers alfabéticos
+    // Orden de filas: TOTAL primero, luego readers alfabÃ©ticos
     const readers = Array.from(readersSet).sort();
     this.tableReaders = ['TOTAL', ...readers];
     this.tableMatrix = matrix;
   }
 
-//------------------
-  /** Devuelve el Map de colores, inicializándolo si hace falta */
+  //------------------
+  /** Devuelve el Map de colores, inicializÃ¡ndolo si hace falta */
   private getColorMapAt(i: number) {
     return (this.colorByReaderMaps[i] ??= new Map<string, { stroke: string; fill: string }>());
   }

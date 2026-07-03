@@ -1,10 +1,355 @@
-<div class="component-container" style="min-height: 207px; max-height: calc(100vh - 30px);">
-  <div class="modal-header">
-    <h5 class="modal-title">
-Tenants
-    </h5>
-    <button type="button" class="btn-close" ></button>
-  </div>
+<div class="component-container" style="min-height: 207px;">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <div class="card-body">
+        <form [formGroup]="tenantForm" novalidate>
+          <div class="row">
+            <!-- Fila 1 -->
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="tenant">Tenant Name</label>
+                <input type="text" id="tenant" class="form-control" formControlName="tenant"
+                  [ngClass]="{ 'is-invalid': errors.includes('tenant') }" placeholder="Tenant Name" />
+              </div>
+            </div>
 
-trt
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" formControlName="email"
+                  [ngClass]="{ 'is-invalid': errors.includes('email') }" placeholder="Email" />
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" class="form-control" formControlName="phone"
+                  [ngClass]="{ 'is-invalid': errors.includes('phone') }" placeholder="Phone" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" class="form-control" formControlName="location"
+                  [ngClass]="{ 'is-invalid': errors.includes('location') }" placeholder="Location" />
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="client">Contact</label>
+                <input type="text" id="client" class="form-control" formControlName="client"
+                  [ngClass]="{ 'is-invalid': errors.includes('client') }" placeholder="Contact Name" />
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label for="status">Status</label>
+              <select id="status" class="form-control" formControlName="status"
+                [ngClass]="{ 'is-invalid': errors.includes('status') }">
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label for="plan">Plan</label>
+              <select id="plan" class="form-control" formControlName="planid">
+                <option value="">Select Plan</option>
+                <option *ngFor="let p of plans" [value]="p.planid">{{ p.plan }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-1">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" class="btn btn-primary w-100" (click)="updateTenant()"
+                [disabled]="formSubmissionFlag || tenantForm.invalid">
+                Save
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">Devices</h3>
+                <button type="button" data-toggle="modal" data-target="#tenant-devices-modal"
+                  class="btn btn-primary btn-sm">
+                  Manage Devices
+                </button>
+              </div>
+              <div class="card-body table-responsive p-0">
+                <table *ngIf="allDevices.length > 0" datatable [dtOptions]="dtOptions"
+                  class="row-border hover table table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Brand</th>
+                      <th>Code</th>
+                      <th>User</th>
+                      <th>Conn.</th>
+                      <th>Act.</th>
+                      <th>IP</th>
+                      <th>State</th>
+                      <th>Last</th>
+                      <th>Time</th>
+                      <th>Channel</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let devices of allDevices; trackBy: trackByDeviceId"
+                      [style.--bs-table-bg]="statusBg(devices.clientstatus)"
+                      [style.--bs-table-color]="statusFg(devices.clientstatus)"
+                      [style.--bs-table-striped-bg]="statusStripe(devices.clientstatus)"
+                      [style.--bs-table-hover-bg]="statusHover(devices.clientstatus)">
+                      <td>{{ devices.deviceid }}</td>
+                      <td>{{ devices.brand }}</td>
+                      <td>{{ devices.barcode }}</td>
+                      <td>{{ devices.username }}</td>
+                      <td>{{ devices.connections }}</td>
+                      <td>{{ devices.activationdate }}</td>
+                      <td>{{ devices.lastip}}</td>
+                      <td>{{ devices.clientstatus }} </td>
+                      <td>{{ devices.lastecm }} </td>
+                      <td>{{ devices.ltime }}</td>
+                      <td>{{ devices.lastchannel }}</td>
+                      <td>
+                        <div class="custom-control custom-switch">
+                          <input type="checkbox" [checked]="devices.status == 'enabled'" class="custom-control-input"
+                            (change)="updateDeviceStatus(devices)" [id]="devices.username" />
+                          <label class="custom-control-label" *ngIf="devices.status == 'enabled'"
+                            [for]="devices.username"></label>
+                          <label class="custom-control-label" *ngIf="devices.status == 'disabled'"
+                            [for]="devices.username"></label>
+                        </div>
+                      </td>
+                      <td>
+                        <i class="fas fa-trash" (click)="deleteDevice(devices)"></i>
+                        <i class="fas fa-info-circle" style="margin-left: 15px" (click)="devicesread(devices)"
+                          data-toggle="modal" data-target="#devices-detail-modal"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div *ngIf="allDevices.length === 0" class="text-center p-3">
+                  No devices mapped to this tenant
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Devices Detail Modal (re-used logic) -->
+    <div class="modal fade" id="devices-detail-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Show Device</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="deviceForm">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="brand">Marca</label>
+                      <input type="text" formControlName="brand" class="form-control" id="brand" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label for="barcode">Código de Barras</label>
+                      <input type="text" formControlName="barcode" class="form-control" id="barcode" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label for="username">Usuario</label>
+                      <input type="text" formControlName="username" class="form-control" id="username" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label for="password">Password</label>
+                      <input type="text" formControlName="password" class="form-control" id="password" readonly />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tenant Manage Devices Modal -->
+    <div class="modal fade" id="tenant-devices-modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Device Management</h5>
+            <button type="button" class="close" (click)="clearDeviceManageForm()" data-dismiss="modal"
+              aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="tabs mb-3 d-flex gap-2" style="border-bottom: 2px solid #ccc; padding-bottom: 5px;">
+
+              <button class="btn" [ngClass]="activeDeviceTab === 't1' ? 'btn-primary' : 'btn-outline-primary'"
+                (click)="openDeviceTab('t1', $event)" *ngIf="tenantid">Add Device</button>
+              <button class="btn" [ngClass]="activeDeviceTab === 't2' ? 'btn-primary' : 'btn-outline-primary'"
+                (click)="openDeviceTab('t2', $event)">Register New Device</button>
+            </div>
+
+            <!-- Assign Existing Device Tab -->
+            <div id="dt1" *ngIf="activeDeviceTab === 't1'">
+              <div class="row">
+                <div class="col-12">
+                  <div class="card shadow-none">
+                    <div class="card-body table-responsive p-0">
+                      <table *ngIf="allUnassignedDevices.length > 0" datatable [dtOptions]="dtOptions"
+                        class="row-border hover table table-hover text-nowrap">
+                        <thead>
+                          <tr>
+                            <th>
+                              <input type="checkbox" (change)="toggleAllUnassigned($event)" [checked]="allSelected" />
+                            </th>
+                            <th>ID</th>
+                            <th>Brand</th>
+                            <th>Barcode</th>
+                            <th>Username</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let device of allUnassignedDevices; trackBy: trackByDeviceId">
+                            <td><input type="checkbox" [(ngModel)]="device.selected"
+                                (change)="onRowSelectUnassigned(device)" /></td>
+                            <td>{{ device.deviceid }}</td>
+                            <td>{{ device.brand }}</td>
+                            <td>{{ device.barcode }}</td>
+                            <td>{{ device.username }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div *ngIf="allUnassignedDevices.length === 0" class="p-3 text-center">
+                        No unassigned devices available.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Register New Device Tab -->
+            <div id="dt2" *ngIf="activeDeviceTab === 't2'">
+              <form [formGroup]="deviceManageForm">
+                <div class="card-body p-0">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <!--                   <div class="form-group">
+                        <label for="tenantid-new">Reseller</label>
+                        <input type="text" formControlName="tenantid" class="form-control" id="tenantid-new" readonly />
+                      </div> -->
+
+                      <div class="form-group">
+                        <label for="brand-new">Brand</label>
+                        <select formControlName="brand" class="form-control"
+                          [ngClass]="{ 'is-invalid': errors.includes('brand') }" id="brand-new">
+                          <option value="">Select Brand</option>
+                          <option *ngFor="let b of allBrands" [value]="b.brand">{{ b.brand }}</option>
+                        </select>
+                        <span *ngIf="errors.includes('brand')" class="error invalid-feedback">{{ formError.brand
+                          }}</span>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barcode-new">Barcode</label>
+                        <input type="text" formControlName="barcode" class="form-control" [ngClass]="{
+                          'is-invalid': deviceManageForm.get('barcode')?.touched && deviceManageForm.get('barcode')?.hasError('barcodeExists')
+                        }" id="barcode-new" placeholder="Barcode" />
+                        <span class="error invalid-feedback"
+                          *ngIf="deviceManageForm.get('barcode')?.touched && deviceManageForm.get('barcode')?.hasError('barcodeExists')">
+                          Device with this barcode already exists.
+                        </span>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="username-new">Username</label>
+                        <input type="text" formControlName="username" class="form-control" [ngClass]="{
+                          'is-invalid': deviceManageForm.get('username')?.touched && (deviceManageForm.get('username')?.hasError('usernameNotExists') || deviceManageForm.get('username')?.hasError('usernameAssigned'))
+                        }" id="username-new" placeholder="Username" readonly />
+                        <span class="error invalid-feedback"
+                          *ngIf="deviceManageForm.get('username')?.touched && deviceManageForm.get('username')?.hasError('usernameNotExists')">
+                          Username does not exist in code base.
+                        </span>
+                        <span class="error invalid-feedback"
+                          *ngIf="deviceManageForm.get('username')?.touched && deviceManageForm.get('username')?.hasError('usernameAssigned')">
+                          Username already assigned to another device.
+                        </span>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="password-new">Password</label>
+                        <input type="text" formControlName="password" class="form-control"
+                          [ngClass]="{ 'is-invalid': errors.includes('password') }" id="password-new"
+                          placeholder="Password" readonly />
+                        <span *ngIf="errors.includes('password')" class="error invalid-feedback">{{ formError.password
+                          }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="obs-new">Observations</label>
+                        <textarea formControlName="obs" class="form-control" id="obs-new"
+                          placeholder="Observations"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+          </div>
+
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" (click)="clearDeviceManageForm()"
+              data-dismiss="modal">Close</button>
+
+            <button *ngIf="activeDeviceTab === 't1'" type="button"
+              [disabled]="formSubmissionFlag || !hasSelectedUnassignedDevices()" 
+              (click)="devicesTenantAssign()"
+              class="btn btn-primary">
+              <div class="spinner-border text-light spinner-border-sm" *ngIf="formSubmissionFlag"></div>
+              Assign Devices
+            </button>
+            <button *ngIf="activeDeviceTab === 't2'" type="button"
+              [disabled]="formSubmissionFlag || deviceManageForm.invalid || deviceManageForm.pending"
+              (click)="createTenantDevice()" class="btn btn-primary">
+              <div class="spinner-border text-light spinner-border-sm" *ngIf="formSubmissionFlag"></div>
+              Register Device
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -16,7 +16,7 @@ export class FeatureGuard  {
   }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean | UrlTree> {
 
-    let userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    let userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
     if (!!userInfo && this.permissionService.checkPermission(userInfo, route.data.feature, route.data.permission,state.url)) {
       return true;
     }
